@@ -1,11 +1,11 @@
 # bosonnlp-rs
 
-[BosonNLP](http://bosonnlp.com) SDK for Rust
+[BosonNLP](http://bosonnlp.com) SDK for [Rust](http://rust-lang.org)
 
 ## Build
 
 ```bash
-$ cargo build --relase
+$ cargo build --release
 ```
 
 ## Test

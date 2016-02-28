@@ -134,13 +134,29 @@ impl BosonNLP {
     /// ```
     pub fn sentiment(&self, contents: &[String], model: &str) -> Result<Vec<(f32, f32)>> {
         let endpoint = format!("/sentiment/analysis?{}", model);
-        let data = contents.to_vec().to_json();
+        let data = contents.to_json();
         self.post::<Vec<(f32, f32)>>(&endpoint, vec![], &data)
     }
 
     /// [新闻分类接口](http://docs.bosonnlp.com/classify.html)
-    pub fn classify(&self, contents: &[String]) -> () {
-        unimplemented!();
+    ///
+    /// ``contents``: 需要做分类的新闻文本序列
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// extern crate bosonnlp;
+    /// use bosonnlp::BosonNLP;
+    ///
+    /// fn main() {
+    ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
+    ///     let rs = nlp.classify(&vec!["俄否决安理会谴责叙军战机空袭阿勒颇平民".to_owned()]).unwrap();
+    ///     assert_eq!(vec![5usize], rs);
+    /// }
+    /// ```
+    pub fn classify(&self, contents: &[String]) -> Result<Vec<usize>> {
+        let data = contents.to_json();
+        self.post::<Vec<usize>>("/classify/analysis", vec![], &data)
     }
 
     /// [语义联想接口](http://docs.bosonnlp.com/suggest.html)

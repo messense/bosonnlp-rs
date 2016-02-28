@@ -1,5 +1,6 @@
 use std::io::Read;
 
+use jsonway;
 use url::Url;
 use hyper::Client;
 use hyper::method::Method;
@@ -100,7 +101,7 @@ impl BosonNLP {
             };
             let message = match result.find("message") {
                 Some(msg) => msg.as_string().unwrap_or("").to_owned(),
-                None => "".to_owned(),
+                None => body,
             };
             return Err(Error::Api { code: res.status, reason: message });
         }
@@ -206,7 +207,6 @@ impl BosonNLP {
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
     ///     let rs = nlp.extract_keywords("病毒式媒体网站：让新闻迅速蔓延", 2, false).unwrap();
-    ///     println!("{:?}", rs);
     ///     assert_eq!(2, rs.len());
     /// }
     /// ```
@@ -236,8 +236,42 @@ impl BosonNLP {
     }
 
     /// [新闻摘要接口](http://docs.bosonnlp.com/summary.html)
-    pub fn summary(&self, title: &str, content: &str, word_limit: f32, not_exceed: bool) -> () {
-        unimplemented!();
+    ///
+    /// ``title``: 需要做摘要的新闻标题，如果没有则传入空字符串
+    ///
+    /// ``content``: 需要做摘要的新闻正文
+    ///
+    /// ``word_limit``: 摘要字数限制
+    ///
+    /// ``not_exceed``: 是否严格限制字数
+    ///
+    /// # 使用示例
+    ///
+    /// ```
+    /// extern crate bosonnlp;
+    ///
+    /// use bosonnlp::BosonNLP;
+    ///
+    /// fn main() {
+    ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
+    ///     let title = "前优酷土豆技术副总裁黄冬加盟芒果TV任CTO";
+    ///     let content = "腾讯科技讯（刘亚澜）10月22日消息，前优酷土豆技术副总裁黄冬已于日前正式加盟芒果TV，出任CTO一职。";
+    ///     let rs = nlp.summary(title, content, 1.0, false);
+    ///     assert!(rs.is_ok());
+    /// }
+    /// ```
+    pub fn summary<T: Into<String>>(&self, title: T, content: T, word_limit: f32, not_exceed: bool) -> Result<String> {
+        let data = jsonway::object(|obj| {
+            obj.set("title", title.into());
+            obj.set("content", content.into());
+            obj.set("percentage", word_limit);
+            if not_exceed {
+                obj.set("not_exceed", 1);
+            } else {
+                obj.set("not_exceed", 0);
+            }
+        }).unwrap();
+        self.post::<String>("/summary/analysis", vec![], &data)
     }
 
     /// [文本聚类接口](http://docs.bosonnlp.com/cluster.html)

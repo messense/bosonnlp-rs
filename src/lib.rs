@@ -6,6 +6,7 @@ extern crate jsonway;
 extern crate rustc_serialize;
 extern crate flate2;
 
+mod response;
 mod client;
 mod errors;
 

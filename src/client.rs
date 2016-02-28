@@ -10,6 +10,7 @@ use rustc_serialize::{Encodable, Decodable};
 use rustc_serialize::json::{self, Json, ToJson};
 
 use errors::Error;
+use response::{Dependency, NamedEntity, Tag};
 
 
 /// 默认的 BosonNLP API 服务器地址
@@ -81,6 +82,7 @@ impl BosonNLP {
                                                             vec![(Attr::Charset, Value::Utf8)]))]))
                              .header(XToken(self.token.clone()));
         let mut res = if method == Method::Post {
+            // TODO: support GZip compress
             let req = req.header(ContentType(Mime(TopLevel::Application, SubLevel::Json,
                                              vec![(Attr::Charset, Value::Utf8)])))
                          .body(&body);
@@ -221,8 +223,29 @@ impl BosonNLP {
     }
 
     /// [依存文法分析接口](http://docs.bosonnlp.com/depparser.html)
-    pub fn depparser(&self, contents: &[String]) -> () {
-        unimplemented!();
+    ///
+    /// ``contents``: 需要做依存文法分析的文本序列
+    ///
+    /// # 使用示例
+    ///
+    /// ```
+    /// extern crate bosonnlp;
+    ///
+    /// use bosonnlp::BosonNLP;
+    ///
+    /// fn main() {
+    ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
+    ///     let rs = nlp.depparser(&vec!["今天天气好".to_owned()]).unwrap();
+    ///     assert_eq!(1, rs.len());
+    ///     let dep0 = &rs[0];
+    ///     assert_eq!(vec![2isize, 2isize, -1isize], dep0.head);
+    ///     let rs = nlp.depparser(&vec!["今天天气好".to_owned(), "美好的世界".to_owned()]).unwrap();
+    ///     assert_eq!(2, rs.len());
+    /// }
+    /// ```
+    pub fn depparser(&self, contents: &[String]) -> Result<Vec<Dependency>> {
+        let data = contents.to_json();
+        self.post::<Vec<Dependency>>("/depparser/analysis", vec![], &data)
     }
 
     /// [命名实体识别接口](http://docs.bosonnlp.com/ner.html)

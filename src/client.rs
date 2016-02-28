@@ -249,8 +249,38 @@ impl BosonNLP {
     }
 
     /// [命名实体识别接口](http://docs.bosonnlp.com/ner.html)
-    pub fn ner(&self, contents: &[String], sensitivity: usize, segmented: bool) -> () {
-        unimplemented!();
+    ///
+    /// ``contents``: 需要做命名实体识别的文本序列
+    ///
+    /// ``sensitivity``: 准确率与召回率之间的平衡。
+    /// 设置成 1 能找到更多的实体，设置成 5 能以更高的精度寻找实体
+    /// 一般设置为 3
+    ///
+    /// ``segmented``: 输入是否已经为分词结果
+    ///
+    /// # 使用示例
+    ///
+    /// ```
+    /// extern crate bosonnlp;
+    ///
+    /// use bosonnlp::BosonNLP;
+    ///
+    /// fn main() {
+    ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
+    ///     let rs = nlp.ner(&vec!["成都商报记者 姚永忠".to_owned()], 2, false).unwrap();
+    ///     assert_eq!(1, rs.len());
+    ///     let rs = nlp.ner(&vec!["成都商报记者 姚永忠".to_owned(), "微软XP操作系统今日正式退休".to_owned()], 2, false).unwrap();
+    ///     assert_eq!(2, rs.len());
+    /// }
+    /// ```
+    pub fn ner(&self, contents: &[String], sensitivity: usize, segmented: bool) -> Result<Vec<NamedEntity>> {
+        let data = contents.to_json();
+        let sensitivity_str = sensitivity.to_string();
+        let params = match segmented {
+            true => vec![("sensitivity", sensitivity_str.as_ref()), ("segmented", "1")],
+            false => vec![("sensitivity", sensitivity_str.as_ref())],
+        };
+        self.post::<Vec<NamedEntity>>("/ner/analysis", params, &data)
     }
 
     /// [分词与词性标注接口](http://docs.bosonnlp.com/tag.html)

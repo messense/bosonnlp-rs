@@ -1,6 +1,10 @@
 [package]
 authors = ["messense <messense@icloud.com>"]
+description = "BosonNLP SDK for Rust"
+keywords = ["nlp", "bosonnlp", "tag", "ner"]
+license = "MIT"
 name = "bosonnlp"
+readme = "README.md"
 version = "0.1.0"
 
 [dependencies]

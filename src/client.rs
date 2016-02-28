@@ -182,14 +182,42 @@ impl BosonNLP {
     ///     let rs = nlp.suggest("北京", 2).unwrap();
     ///     assert_eq!(2, rs.len());
     /// }
+    /// ```
     pub fn suggest<T: AsRef<str>>(&self, word: T, top_k: usize) -> Result<Vec<(f32, String)>> {
         let data = word.as_ref().to_json();
         self.post::<Vec<(f32, String)>>("/suggest/analysis", vec![("top_k", &top_k.to_string())], &data)
     }
 
     /// [关键词提取接口](http://docs.bosonnlp.com/keywords.html)
-    pub fn extract_keywords(&self, text: &str, top_k: usize, segmented: bool) -> () {
-        unimplemented!();
+    ///
+    /// ``text``: 需要做关键词提取的文本
+    ///
+    /// ``top_k``: 返回结果的条数，最大值可设定为 100
+    ///
+    /// ``segmented``: `text` 是否已经进行了分词，若为 `true` 则不会再对内容进行分词处理
+    ///
+    /// # 使用示例
+    ///
+    /// ```
+    /// extern crate bosonnlp;
+    ///
+    /// use bosonnlp::BosonNLP;
+    ///
+    /// fn main() {
+    ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
+    ///     let rs = nlp.extract_keywords("病毒式媒体网站：让新闻迅速蔓延", 2, false).unwrap();
+    ///     println!("{:?}", rs);
+    ///     assert_eq!(2, rs.len());
+    /// }
+    /// ```
+    pub fn extract_keywords<T: AsRef<str>>(&self, text: T, top_k: usize, segmented: bool) -> Result<Vec<(f32, String)>> {
+        let data = text.as_ref().to_json();
+        let top_k_str = top_k.to_string();
+        let params = match segmented {
+            true => vec![("top_k", top_k_str.as_ref()), ("segmented", "1")],
+            false => vec![("top_k", top_k_str.as_ref())],
+        };
+        self.post::<Vec<(f32, String)>>("/keywords/analysis", params, &data)
     }
 
     /// [依存文法分析接口](http://docs.bosonnlp.com/depparser.html)

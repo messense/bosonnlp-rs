@@ -284,8 +284,49 @@ impl BosonNLP {
     }
 
     /// [分词与词性标注接口](http://docs.bosonnlp.com/tag.html)
-    pub fn tag(&self, contents: &[String], space_mode: usize, oov_level: usize, t2s: bool, special_char_conv: bool) -> () {
-        unimplemented!();
+    ///
+    /// ``contents``: 需要做分词与词性标注的文本序列
+    ///
+    /// ``space_mode``: 空格保留选项，0-3 有效
+    ///
+    /// ``oov_level``: 枚举强度选项，0-4 有效
+    ///
+    /// ``t2s``: 是否开启繁体转简体
+    ///
+    /// ``special_char_conv``: 是否转化特殊字符，针对回车、Tab 等特殊字符。
+    ///
+    /// # 使用示例
+    ///
+    /// ```
+    /// extern crate bosonnlp;
+    ///
+    /// use bosonnlp::BosonNLP;
+    ///
+    /// fn main() {
+    ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
+    ///     let rs = nlp.tag(&vec!["成都商报记者 姚永忠".to_owned()], 0, 3, false, false).unwrap();
+    ///     assert_eq!(1, rs.len());
+    /// }
+    /// ```
+    pub fn tag(&self, contents: &[String], space_mode: usize, oov_level: usize, t2s: bool, special_char_conv: bool) -> Result<Vec<Tag>> {
+        let data = contents.to_json();
+        let t2s_str = match t2s {
+            true => "1",
+            false => "0",
+        };
+        let special_char_conv_str = match special_char_conv {
+            true => "1",
+            false => "0",
+        };
+        let space_mode_str = space_mode.to_string();
+        let oov_level_str = oov_level.to_string();
+        let params = vec![
+            ("space_mode", space_mode_str.as_ref()),
+            ("oov_level", oov_level_str.as_ref()),
+            ("t2s", t2s_str),
+            ("special_char_conv", special_char_conv_str),
+        ];
+        self.post("/tag/analysis", params, &data)
     }
 
     /// [新闻摘要接口](http://docs.bosonnlp.com/summary.html)

@@ -11,13 +11,16 @@ use rustc_serialize::json::{self, Json, ToJson};
 use errors::Error;
 
 
+/// 默认的 BosonNLP API 服务器地址
 const DEFAULT_BOSONNLP_URL: &'static str = "http://api.bosonnlp.com";
 
+/// BosonNLP API 鉴权 HTTP Header
 header! { (XToken, "X-Token") => [String] }
 
+/// BosonNLP API 返回结果类型
 pub type Result<T> = ::std::result::Result<T, Error>;
 
-/// BosonNLP REST API 访问的封装
+/// [BosonNLP](http://bosonnlp.com) REST API 访问的封装
 pub struct BosonNLP {
     /// 用于 API 鉴权的 API Token
     pub token: String,
@@ -120,10 +123,11 @@ impl BosonNLP {
     ///
     /// ``model``: 使用不同的语料训练的模型
     ///
-    /// # Example
+    /// # 使用示例
     ///
     /// ```
     /// extern crate bosonnlp;
+    ///
     /// use bosonnlp::BosonNLP;
     ///
     /// fn main() {
@@ -142,10 +146,11 @@ impl BosonNLP {
     ///
     /// ``contents``: 需要做分类的新闻文本序列
     ///
-    /// # Example
+    /// # 使用示例
     ///
     /// ```
     /// extern crate bosonnlp;
+    ///
     /// use bosonnlp::BosonNLP;
     ///
     /// fn main() {

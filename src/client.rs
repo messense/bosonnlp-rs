@@ -165,8 +165,26 @@ impl BosonNLP {
     }
 
     /// [语义联想接口](http://docs.bosonnlp.com/suggest.html)
-    pub fn suggest(&self, word: &str, top_k: usize) -> () {
-        unimplemented!();
+    ///
+    /// ``word``: 需要做语义联想的词
+    ///
+    /// ``top_k``: 返回结果的条数，最大值可设定为 100
+    ///
+    /// # 使用示例
+    ///
+    /// ```
+    /// extern crate bosonnlp;
+    ///
+    /// use bosonnlp::BosonNLP;
+    ///
+    /// fn main() {
+    ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
+    ///     let rs = nlp.suggest("北京", 2).unwrap();
+    ///     assert_eq!(2, rs.len());
+    /// }
+    pub fn suggest<T: AsRef<str>>(&self, word: T, top_k: usize) -> Result<Vec<(f32, String)>> {
+        let data = word.as_ref().to_json();
+        self.post::<Vec<(f32, String)>>("/suggest/analysis", vec![("top_k", &top_k.to_string())], &data)
     }
 
     /// [关键词提取接口](http://docs.bosonnlp.com/keywords.html)

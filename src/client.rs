@@ -2,6 +2,7 @@ use std::io::Read;
 
 use jsonway;
 use url::Url;
+use uuid::Uuid;
 use hyper::Client;
 use hyper::method::Method;
 use hyper::header::{UserAgent, Accept, ContentLength, ContentType, qitem};
@@ -10,7 +11,8 @@ use rustc_serialize::{Encodable, Decodable};
 use rustc_serialize::json::{self, Json, ToJson};
 
 use errors::Error;
-use response::{Dependency, NamedEntity, Tag};
+use rep::{Dependency, NamedEntity, Tag, ClusterContent, TextCluster, CommentsCluster};
+use task::{ClusterTask, CommentsTask, Task};
 
 
 /// 默认的 BosonNLP API 服务器地址
@@ -110,11 +112,11 @@ impl BosonNLP {
         Ok(try!(json::decode::<D>(&body)))
     }
 
-    fn get<D: Decodable>(&self, endpoint: &str, params: Vec<(&str, &str)>) -> Result<D> {
+    pub fn get<D: Decodable>(&self, endpoint: &str, params: Vec<(&str, &str)>) -> Result<D> {
         self.request(Method::Get, endpoint, params, &json::Object::new())
     }
 
-    fn post<D>(&self, endpoint: &str, params: Vec<(&str, &str)>, data: &Json) -> Result<D>
+    pub fn post<D>(&self, endpoint: &str, params: Vec<(&str, &str)>, data: &Json) -> Result<D>
         where D: Decodable,
     {
         self.request(Method::Post, endpoint, params, data)
@@ -369,12 +371,84 @@ impl BosonNLP {
     }
 
     /// [文本聚类接口](http://docs.bosonnlp.com/cluster.html)
-    pub fn cluster(&self, contents: &[String], task_id: &str, alpha: f32, beta: f32, timeout: usize) -> () {
-        unimplemented!();
+    ///
+    /// ``task_id``: 唯一的 task_id，话题聚类任务的名字，可由字母和数字组成
+    ///
+    /// ``alpha``: 聚类最大 cluster 大小，一般为 0.8
+    ///
+    /// ``beta``: 聚类平均 cluster 大小，一般为 0.45
+    ///
+    /// ``timeout``: 等待文本聚类任务完成的秒数，一般为 1800 秒
+    ///
+    /// # 使用示例
+    ///
+    /// ```
+    /// extern crate bosonnlp;
+    ///
+    /// use bosonnlp::BosonNLP;
+    ///
+    /// fn main() {
+    ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
+    ///     let rs = nlp.cluster(&vec![], None, 0.8, 0.45, Some(10)).unwrap();
+    ///     assert_eq!(0, rs.len());
+    /// }
+    /// ```
+    pub fn cluster(&self, contents: &[ClusterContent], task_id: Option<&str>, alpha: f32, beta: f32, timeout: Option<u64>) -> Result<Vec<TextCluster>> {
+        let mut task = match task_id {
+            Some(_id) => ClusterTask::new(self, _id),
+            None => {
+                let _id = Uuid::new_v4().to_hyphenated_string();
+                ClusterTask::new(self, _id)
+            },
+        };
+        if !try!(task.push(contents)) {
+            return Ok(vec![]);
+        }
+        try!(task.analysis(alpha, beta));
+        try!(task.wait(timeout));
+        let result = try!(task.result());
+        try!(task.clear());
+        Ok(result)
     }
 
     /// [典型意见接口](http://docs.bosonnlp.com/comments.html)
-    pub fn comments(&self, contents: &[String], task_id: &str, alpha: f32, beta: f32, timeout: usize) -> () {
-        unimplemented!();
+    ///
+    /// ``task_id``: 唯一的 task_id，典型意见任务的名字，可由字母和数字组成
+    ///
+    /// ``alpha``: 聚类最大 cluster 大小，一般为 0.8
+    ///
+    /// ``beta``: 聚类平均 cluster 大小，一般为 0.45
+    ///
+    /// ``timeout``: 等待典型意见任务完成的秒数，一般为 1800 秒
+    ///
+    /// # 使用示例
+    ///
+    /// ```
+    /// extern crate bosonnlp;
+    ///
+    /// use bosonnlp::BosonNLP;
+    ///
+    /// fn main() {
+    ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
+    ///     let rs = nlp.comments(&vec![], None, 0.8, 0.45, Some(10)).unwrap();
+    ///     assert_eq!(0, rs.len());
+    /// }
+    /// ```
+    pub fn comments(&self, contents: &[ClusterContent], task_id: Option<&str>, alpha: f32, beta: f32, timeout: Option<u64>) -> Result<Vec<CommentsCluster>> {
+        let mut task = match task_id {
+            Some(_id) => CommentsTask::new(self, _id),
+            None => {
+                let _id = Uuid::new_v4().to_hyphenated_string();
+                CommentsTask::new(self, _id)
+            },
+        };
+        if !try!(task.push(contents)) {
+            return Ok(vec![]);
+        }
+        try!(task.analysis(alpha, beta));
+        try!(task.wait(timeout));
+        let result = try!(task.result());
+        try!(task.clear());
+        Ok(result)
     }
 }

@@ -1,8 +1,10 @@
 //! [BonsonNLP](http://bosonnlp.com) SDK for Rust
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate log;
 extern crate url;
 extern crate uuid;
-#[macro_use] extern crate hyper;
+#[macro_use]
+extern crate hyper;
 extern crate jsonway;
 extern crate rustc_serialize;
 extern crate flate2;

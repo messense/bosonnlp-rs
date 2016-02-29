@@ -68,6 +68,7 @@ impl ToJson for ClusterContent {
         jsonway::object(|obj| {
             obj.set("_id", self._id.clone());
             obj.set("text", self.text.clone());
-        }).unwrap()
+        })
+            .unwrap()
     }
 }

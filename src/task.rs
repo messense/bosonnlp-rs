@@ -80,7 +80,7 @@ impl<'a> Task for ClusterTask<'a> {
             "running" => TaskStatus::Running,
             "done" => TaskStatus::Done,
             "error" => TaskStatus::Error,
-            "not found" => { return Err(Error::TaskNotFound { task_id: self.task_id.clone() }) },
+            "not found" => return Err(Error::TaskNotFound { task_id: self.task_id.clone() }),
             _ => unreachable!(),
         };
         Ok(ret)
@@ -181,7 +181,7 @@ impl<'a> Task for CommentsTask<'a> {
             "running" => TaskStatus::Running,
             "done" => TaskStatus::Done,
             "error" => TaskStatus::Error,
-            "not found" => { return Err(Error::TaskNotFound { task_id: self.task_id.clone() }) },
+            "not found" => return Err(Error::TaskNotFound { task_id: self.task_id.clone() }),
             _ => unreachable!(),
         };
         Ok(ret)

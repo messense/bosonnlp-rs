@@ -78,14 +78,17 @@ impl BosonNLP {
         url.set_query_from_pairs(params.into_iter());
         let body;
         let compressed;
-        let req = self.client.request(method.clone(), url)
-                             .header(UserAgent(format!("bosonnlp-rs/{}", env!("CARGO_PKG_VERSION"))))
-                             .header(Accept(vec![qitem(Mime(TopLevel::Application, SubLevel::Json,
-                                                            vec![(Attr::Charset, Value::Utf8)]))]))
-                             .header(XToken(self.token.clone()));
+        let req = self.client
+                      .request(method.clone(), url)
+                      .header(UserAgent(format!("bosonnlp-rs/{}", env!("CARGO_PKG_VERSION"))))
+                      .header(Accept(vec![qitem(Mime(TopLevel::Application,
+                                                     SubLevel::Json,
+                                                     vec![(Attr::Charset, Value::Utf8)]))]))
+                      .header(XToken(self.token.clone()));
         let mut res = if method == Method::Post {
-            let req = req.header(ContentType(Mime(TopLevel::Application, SubLevel::Json,
-                                             vec![(Attr::Charset, Value::Utf8)])));
+            let req = req.header(ContentType(Mime(TopLevel::Application,
+                                                  SubLevel::Json,
+                                                  vec![(Attr::Charset, Value::Utf8)])));
             body = match json::encode(data) {
                 Ok(d) => d,
                 Err(..) => "".to_owned(),
@@ -116,7 +119,10 @@ impl BosonNLP {
                 Some(msg) => msg.as_string().unwrap_or("").to_owned(),
                 None => body,
             };
-            return Err(Error::Api { code: res.status, reason: message });
+            return Err(Error::Api {
+                code: res.status,
+                reason: message,
+            });
         }
         Ok(try!(json::decode::<D>(&body)))
     }
@@ -126,7 +132,7 @@ impl BosonNLP {
     }
 
     pub fn post<D>(&self, endpoint: &str, params: Vec<(&str, &str)>, data: &Json) -> Result<D>
-        where D: Decodable,
+        where D: Decodable
     {
         self.request(Method::Post, endpoint, params, data)
     }
@@ -199,7 +205,9 @@ impl BosonNLP {
     /// ```
     pub fn suggest<T: AsRef<str>>(&self, word: T, top_k: usize) -> Result<Vec<(f32, String)>> {
         let data = word.as_ref().to_json();
-        self.post::<Vec<(f32, String)>>("/suggest/analysis", vec![("top_k", &top_k.to_string())], &data)
+        self.post::<Vec<(f32, String)>>("/suggest/analysis",
+                                        vec![("top_k", &top_k.to_string())],
+                                        &data)
     }
 
     /// [关键词提取接口](http://docs.bosonnlp.com/keywords.html)
@@ -223,7 +231,11 @@ impl BosonNLP {
     ///     assert_eq!(2, rs.len());
     /// }
     /// ```
-    pub fn extract_keywords<T: AsRef<str>>(&self, text: T, top_k: usize, segmented: bool) -> Result<Vec<(f32, String)>> {
+    pub fn extract_keywords<T: AsRef<str>>(&self,
+                                           text: T,
+                                           top_k: usize,
+                                           segmented: bool)
+                                           -> Result<Vec<(f32, String)>> {
         let data = text.as_ref().to_json();
         let top_k_str = top_k.to_string();
         let params = match segmented {
@@ -319,7 +331,13 @@ impl BosonNLP {
     ///     assert_eq!(1, rs.len());
     /// }
     /// ```
-    pub fn tag(&self, contents: &[String], space_mode: usize, oov_level: usize, t2s: bool, special_char_conv: bool) -> Result<Vec<Tag>> {
+    pub fn tag(&self,
+               contents: &[String],
+               space_mode: usize,
+               oov_level: usize,
+               t2s: bool,
+               special_char_conv: bool)
+               -> Result<Vec<Tag>> {
         let data = contents.to_json();
         let t2s_str = match t2s {
             true => "1",
@@ -367,15 +385,16 @@ impl BosonNLP {
     /// ```
     pub fn summary<T: Into<String>>(&self, title: T, content: T, word_limit: f32, not_exceed: bool) -> Result<String> {
         let data = jsonway::object(|obj| {
-            obj.set("title", title.into());
-            obj.set("content", content.into());
-            obj.set("percentage", word_limit);
-            if not_exceed {
-                obj.set("not_exceed", 1);
-            } else {
-                obj.set("not_exceed", 0);
-            }
-        }).unwrap();
+                       obj.set("title", title.into());
+                       obj.set("content", content.into());
+                       obj.set("percentage", word_limit);
+                       if not_exceed {
+                           obj.set("not_exceed", 1);
+                       } else {
+                           obj.set("not_exceed", 0);
+                       }
+                   })
+                       .unwrap();
         self.post::<String>("/summary/analysis", vec![], &data)
     }
 
@@ -402,13 +421,19 @@ impl BosonNLP {
     ///     assert_eq!(0, rs.len());
     /// }
     /// ```
-    pub fn cluster(&self, contents: &[ClusterContent], task_id: Option<&str>, alpha: f32, beta: f32, timeout: Option<u64>) -> Result<Vec<TextCluster>> {
+    pub fn cluster(&self,
+                   contents: &[ClusterContent],
+                   task_id: Option<&str>,
+                   alpha: f32,
+                   beta: f32,
+                   timeout: Option<u64>)
+                   -> Result<Vec<TextCluster>> {
         let mut task = match task_id {
             Some(_id) => ClusterTask::new(self, _id),
             None => {
                 let _id = Uuid::new_v4().to_hyphenated_string();
                 ClusterTask::new(self, _id)
-            },
+            }
         };
         if !try!(task.push(contents)) {
             return Ok(vec![]);
@@ -443,13 +468,19 @@ impl BosonNLP {
     ///     assert_eq!(0, rs.len());
     /// }
     /// ```
-    pub fn comments(&self, contents: &[ClusterContent], task_id: Option<&str>, alpha: f32, beta: f32, timeout: Option<u64>) -> Result<Vec<CommentsCluster>> {
+    pub fn comments(&self,
+                    contents: &[ClusterContent],
+                    task_id: Option<&str>,
+                    alpha: f32,
+                    beta: f32,
+                    timeout: Option<u64>)
+                    -> Result<Vec<CommentsCluster>> {
         let mut task = match task_id {
             Some(_id) => CommentsTask::new(self, _id),
             None => {
                 let _id = Uuid::new_v4().to_hyphenated_string();
                 CommentsTask::new(self, _id)
-            },
+            }
         };
         if !try!(task.push(contents)) {
             return Ok(vec![]);

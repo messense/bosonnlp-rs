@@ -17,8 +17,12 @@ pub enum Error {
         code: StatusCode,
         reason: String,
     },
-    TaskNotFound { task_id: String },
-    Timeout { task_id: String },
+    TaskNotFound {
+        task_id: String,
+    },
+    Timeout {
+        task_id: String,
+    },
 }
 
 impl fmt::Display for Error {

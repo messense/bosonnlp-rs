@@ -104,7 +104,9 @@ impl<'a> Task for ClusterTask<'a> {
         for parts in contents.chunks(100) {
             let data = parts.to_json();
             try!(self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data));
-            info!("Pushed {} of {} documents for clustering", parts.len(), contents.len());
+            info!("Pushed {} of {} documents for clustering",
+                  parts.len(),
+                  contents.len());
         }
         self.contents.extend_from_slice(contents);
         Ok(true)
@@ -188,7 +190,9 @@ impl<'a> Task for CommentsTask<'a> {
         for parts in contents.chunks(100) {
             let data = parts.to_json();
             try!(self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data));
-            info!("Pushed {} of {} documents for comments clustering", parts.len(), contents.len());
+            info!("Pushed {} of {} documents for comments clustering",
+                  parts.len(),
+                  contents.len());
         }
         self.contents.extend_from_slice(contents);
         Ok(true)

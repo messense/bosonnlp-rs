@@ -92,7 +92,7 @@ impl From<String> for ClusterContent {
     fn from(content: String) -> ClusterContent {
         ClusterContent {
             _id: Uuid::new_v4().to_simple_string(),
-            text: content
+            text: content,
         }
     }
 }

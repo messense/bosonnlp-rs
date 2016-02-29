@@ -231,11 +231,7 @@ impl BosonNLP {
     ///     assert_eq!(2, rs.len());
     /// }
     /// ```
-    pub fn keywords<T: AsRef<str>>(&self,
-                                   text: T,
-                                   top_k: usize,
-                                   segmented: bool)
-                                   -> Result<Vec<(f32, String)>> {
+    pub fn keywords<T: AsRef<str>>(&self, text: T, top_k: usize, segmented: bool) -> Result<Vec<(f32, String)>> {
         let data = text.as_ref().to_json();
         let top_k_str = top_k.to_string();
         let params = match segmented {

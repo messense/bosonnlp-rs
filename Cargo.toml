@@ -6,6 +6,8 @@ license = "MIT"
 name = "bosonnlp"
 readme = "README.md"
 version = "0.1.0"
+homepage = "https://github.com/messense/bosonnlp-rs"
+repository = "https://github.com/messense/bosonnlp-rs"
 
 [dependencies]
 flate2 = "0.2"

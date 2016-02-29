@@ -5,9 +5,10 @@ keywords = ["nlp", "bosonnlp", "tag", "ner"]
 license = "MIT"
 name = "bosonnlp"
 readme = "README.md"
-version = "0.1.0"
+version = "0.1.1"
 homepage = "https://github.com/messense/bosonnlp-rs"
 repository = "https://github.com/messense/bosonnlp-rs"
+documentation = "https://messense.github.io/bosonnlp-rs"
 
 [dependencies]
 flate2 = "0.2"

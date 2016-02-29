@@ -2,6 +2,10 @@
 
 [BosonNLP](http://bosonnlp.com) SDK for [Rust](http://rust-lang.org)
 
+[![Build Status](https://travis-ci.org/messense/bosonnlp-rs.svg?branch=master)](https://travis-ci.org/messense/bosonnlp-rs)
+[![Coverage Status](https://coveralls.io/repos/messense/bosonnlp-rs/badge.svg)](https://coveralls.io/r/messense/bosonnlp-rs)
+[![Crates.io](https://img.shields.io/crates/v/bosonnlp.svg)](https://crates.io/crates/bosonnlp)
+
 
 ## Installation
 

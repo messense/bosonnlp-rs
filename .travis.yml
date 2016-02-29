@@ -4,15 +4,16 @@ rust:
   - stable
   - beta
   - nightly
-
 before_script:
   - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
-
 script:
   - travis-cargo build
   - travis-cargo test
   - travis-cargo --only stable doc
-
 after_success:
   - travis-cargo --only stable doc-upload
   - travis-cargo coveralls
+env:
+  global:
+    - secure: qNnYPnVjqjGm2BMyPvdE1kUVlX05JryZhAwAYmhMU3hmFEByPetBP6jOtnzKStEwAVbkB3+RQsAZOrO2rTcSa+pHYUo69+2hw4oI/2/gR/CKS9xO4nrxtpSpo84VStDWR8oxw4ozHZbjcUW6mZ+Cm4m0url3O8oakY+RTkeGQxrxpJUvZ0P2/z0fODabdahj5jdB3Sqc5pvMyyZ+MyvT5ph0IE0XNrcSD66vz69kwiq7Ls4JwYLNdlUWlmI33Wmv9q2tTvmNghVRL27wPgvidKidR+XSUwvh4VEToPPf8oxqOqW7vOVQ5s1LMuc+HvDnPkHBU0Olq/PrQMySzwIewFZb/Obd1ObwtlEPAUGoJxPnivCNFlw77ppNWCDO09R0Q7GiZNdhZqUKGo2BmVCvA1eJZziNq0/dUSlwIZJE3KOhoXDPbRIFS1QZ9QUNWXBJGXWIdZTx+EqeLBI08NkBCVauPFmj3tbi5ZD8nXYQG/PHzif5gQV84CJP6ziZb4F59Sa8I+NnbQFfsBB7Msj9o/rZzPcTQmEqeDUJ4JYv/JR8714I0jHg1nb7l8NuUZaJ6vbX3csgRB2G/jpOFx5kEWIyNZ+1+4CK0dzd1d083PMEOkR3/7LU8yfpKMC/OgU6mO80CNHl/W5jcUhRFNQXSTkqD75ZsmlagYotxG7bYa0=
+    - secure: eEa5DCRWy6jemrrEMKVhIQziV0f0GpagN44UKYuNWq4aiM4BkJlQJTHqQxOw+lQOgb0rVw77xBmCbWgWHlyNlri5loeR1e863+6RQ0GJHFlTVi1aH4yBDbl/1ecrK6aTUYipQIx7Nz/vVKxWyI8cykH+wiiDqAs5QNTAIJTmWZ/WDKgkzje8OrgGYcc46S/Ow1366i047B+ha/l2511Q48zmof4lo5tlcTb1t1mLTBRhm6YSLzuP3X1RazRzW7QJWFYNoRjbfKlYskec+U5LBGWW1JBhPqbajhwIFKahqSC479KU6I9vMB5zAE8YmJVagipSKZqIQ0h65vWl1tFA75NMkYRNOLCbf+gEpAwAbou5CBspdGOkq4Z1GgSbR4xkoNE9QVEe/XknFlp1CnWSqT+4gyBXnmtYCglqqqcS7afSObZ5TaAZtCJnKWQ9+8tozVXDzvtNRutzjMgqQqAD0Pk+AX3Wld/OwG14/yhFzJmynRb5kb/utyZhDsW5QecPvQOupMCsobauCweWmzSZGfpvX5vf/ZGoPL1p9r67X1z4IjCKHcGXRs0yI8thMyGXyAAFbU22ddYjkCLreJk0X4jC1uhLZU1Ol2Duf2OAVAKMZVbJO9Jyni19RCAb5Y/Dq8utfcttmxsirOEOEnFcNLB+9mhrQIL/Gb090ZibLqk=

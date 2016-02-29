@@ -5,7 +5,7 @@ use std::thread;
 use rustc_serialize::json::ToJson;
 
 use super::{BosonNLP, Result};
-use rep::{TextCluster, CommentsCluster, TaskStatusResp, TaskStatus, ClusterContent};
+use rep::{TextCluster, CommentsCluster, TaskStatus, ClusterContent};
 use errors::Error;
 
 /// 聚类任务
@@ -24,6 +24,20 @@ pub trait Task {
     fn clear(&self) -> Result<()>;
     /// 等待任务完成
     fn wait(&self, timeout: Option<u64>) -> Result<()>;
+}
+
+
+#[derive(Debug, RustcDecodable, Clone)]
+struct TaskPushResp {
+    pub task_id: String,
+    pub count: usize,
+}
+
+#[derive(Debug, RustcDecodable, Clone)]
+struct TaskStatusResp {
+    pub _id: String,
+    pub status: String,
+    pub count: usize,
 }
 
 /// 文本聚类任务
@@ -54,7 +68,7 @@ impl<'a> Task for ClusterTask<'a> {
         }
         for parts in contents.chunks(100) {
             let data = parts.to_json();
-            try!(self.nlp.post(&endpoint, vec![], &data));
+            try!(self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data));
             info!("Pushed {} of {} documents for clustering", parts.len(), contents.len());
         }
         self.contents.extend_from_slice(contents);
@@ -67,7 +81,7 @@ impl<'a> Task for ClusterTask<'a> {
         let alpha_str = alpha.to_string();
         let beta_str = beta.to_string();
         let params = vec![("alpha", alpha_str.as_ref()), ("beta", beta_str.as_ref())];
-        try!(self.nlp.get(&endpoint, params));
+        try!(self.nlp.get::<TaskStatusResp>(&endpoint, params));
         info!("Cluster task {} analysis started", self.task_id);
         Ok(())
     }
@@ -98,7 +112,7 @@ impl<'a> Task for ClusterTask<'a> {
     /// 清空服务器端缓存的文本和结果
     fn clear(&self) -> Result<()> {
         let endpoint = format!("/cluster/clear/{}", self.task_id);
-        try!(self.nlp.get(&endpoint, vec![]));
+        self.nlp.get::<String>(&endpoint, vec![]).unwrap_or("".to_owned());
         info!("Cluster task {} cleared", self.task_id);
         Ok(())
     }
@@ -159,7 +173,7 @@ impl<'a> Task for CommentsTask<'a> {
         }
         for parts in contents.chunks(100) {
             let data = parts.to_json();
-            try!(self.nlp.post(&endpoint, vec![], &data));
+            try!(self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data));
             info!("Pushed {} of {} documents for comments clustering", parts.len(), contents.len());
         }
         self.contents.extend_from_slice(contents);
@@ -172,7 +186,7 @@ impl<'a> Task for CommentsTask<'a> {
         let alpha_str = alpha.to_string();
         let beta_str = beta.to_string();
         let params = vec![("alpha", alpha_str.as_ref()), ("beta", beta_str.as_ref())];
-        try!(self.nlp.get(&endpoint, params));
+        try!(self.nlp.get::<TaskStatusResp>(&endpoint, params));
         info!("Comments task {} analysis started", self.task_id);
         Ok(())
     }
@@ -203,7 +217,7 @@ impl<'a> Task for CommentsTask<'a> {
     /// 清空服务器端缓存的文本和结果
     fn clear(&self) -> Result<()> {
         let endpoint = format!("/comments/clear/{}", self.task_id);
-        try!(self.nlp.get(&endpoint, vec![]));
+        self.nlp.get::<String>(&endpoint, vec![]).unwrap_or("".to_owned());
         info!("Comments task {} cleared", self.task_id);
         Ok(())
     }

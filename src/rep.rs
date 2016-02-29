@@ -1,5 +1,6 @@
 //! BosonNLP 部分 API 输入/返回类型
 use jsonway;
+use uuid::Uuid;
 use rustc_serialize::json::{Json, ToJson};
 
 /// 依存文法
@@ -29,8 +30,8 @@ pub struct Tag {
 /// 文本聚类
 #[derive(Debug, RustcDecodable, Clone)]
 pub struct TextCluster {
-    pub _id: usize,
-    pub list: Vec<usize>,
+    pub _id: String,
+    pub list: Vec<String>,
     pub num: usize,
 }
 
@@ -38,14 +39,9 @@ pub struct TextCluster {
 #[derive(Debug, RustcDecodable, Clone)]
 pub struct CommentsCluster {
     pub _id: usize,
-    pub list: Vec<(String, usize)>,
+    pub list: Vec<(String, String)>,
     pub num: usize,
     pub opinion: String,
-}
-
-#[derive(Debug, RustcDecodable, Clone)]
-pub struct TaskStatusResp {
-    pub status: String,
 }
 
 /// 聚类任务状态
@@ -70,5 +66,23 @@ impl ToJson for ClusterContent {
             obj.set("text", self.text.clone());
         })
             .unwrap()
+    }
+}
+
+impl From<String> for ClusterContent {
+    fn from(content: String) -> ClusterContent {
+        ClusterContent {
+            _id: Uuid::new_v4().to_simple_string(),
+            text: content
+        }
+    }
+}
+
+impl<'a> From<&'a str> for ClusterContent {
+    fn from(content: &'a str) -> ClusterContent {
+        ClusterContent {
+            _id: Uuid::new_v4().to_simple_string(),
+            text: String::from(content),
+        }
     }
 }

@@ -413,12 +413,23 @@ impl BosonNLP {
     /// ```
     /// extern crate bosonnlp;
     ///
-    /// use bosonnlp::BosonNLP;
+    /// use bosonnlp::{BosonNLP, ClusterContent};
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
+    ///     let contents = vec![
+    ///         ClusterContent::from("今天天气好"),
+    ///         ClusterContent::from("今天天气好"),
+    ///         ClusterContent::from("今天天气不错"),
+    ///         ClusterContent::from("点点楼头细雨"),
+    ///         ClusterContent::from("重重江外平湖"),
+    ///         ClusterContent::from("当年戏马会东徐"),
+    ///         ClusterContent::from("今日凄凉南浦"),
+    ///     ];
     ///     let rs = nlp.cluster(&vec![], None, 0.8, 0.45, Some(10)).unwrap();
     ///     assert_eq!(0, rs.len());
+    ///     let rs = nlp.cluster(&contents, None, 0.8, 0.45, Some(10)).unwrap();
+    ///     assert_eq!(1, rs.len());
     /// }
     /// ```
     pub fn cluster(&self,
@@ -431,7 +442,7 @@ impl BosonNLP {
         let mut task = match task_id {
             Some(_id) => ClusterTask::new(self, _id),
             None => {
-                let _id = Uuid::new_v4().to_hyphenated_string();
+                let _id = Uuid::new_v4().to_simple_string();
                 ClusterTask::new(self, _id)
             }
         };
@@ -460,12 +471,30 @@ impl BosonNLP {
     /// ```
     /// extern crate bosonnlp;
     ///
-    /// use bosonnlp::BosonNLP;
+    /// use bosonnlp::{BosonNLP, ClusterContent};
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
+    ///     let contents = vec![
+    ///         ClusterContent::from("今天天气好"),
+    ///         ClusterContent::from("今天天气好"),
+    ///         ClusterContent::from("今天天气不错"),
+    ///         ClusterContent::from("点点楼头细雨"),
+    ///         ClusterContent::from("重重江外平湖"),
+    ///         ClusterContent::from("当年戏马会东徐"),
+    ///         ClusterContent::from("今日凄凉南浦"),
+    ///         ClusterContent::from("今天天气好"),
+    ///         ClusterContent::from("今天天气好"),
+    ///         ClusterContent::from("今天天气不错"),
+    ///         ClusterContent::from("点点楼头细雨"),
+    ///         ClusterContent::from("重重江外平湖"),
+    ///         ClusterContent::from("当年戏马会东徐"),
+    ///         ClusterContent::from("今日凄凉南浦"),
+    ///     ];
     ///     let rs = nlp.comments(&vec![], None, 0.8, 0.45, Some(10)).unwrap();
     ///     assert_eq!(0, rs.len());
+    ///     let rs = nlp.comments(&contents, None, 0.8, 0.45, Some(10)).unwrap();
+    ///     assert_eq!(4, rs.len());
     /// }
     /// ```
     pub fn comments(&self,
@@ -478,7 +507,7 @@ impl BosonNLP {
         let mut task = match task_id {
             Some(_id) => CommentsTask::new(self, _id),
             None => {
-                let _id = Uuid::new_v4().to_hyphenated_string();
+                let _id = Uuid::new_v4().to_simple_string();
                 CommentsTask::new(self, _id)
             }
         };

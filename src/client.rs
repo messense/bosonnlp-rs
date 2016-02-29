@@ -76,10 +76,7 @@ impl BosonNLP {
         let url_string = format!("{}{}", self.bosonnlp_url, endpoint);
         let mut url = Url::parse(&url_string).unwrap();
         url.set_query_from_pairs(params.into_iter());
-        let body = match json::encode(data) {
-            Ok(d) => d,
-            Err(..) => "".to_owned(),
-        };
+        let body;
         let compressed;
         let req = self.client.request(method.clone(), url)
                              .header(UserAgent(format!("bosonnlp-rs/{}", env!("CARGO_PKG_VERSION"))))
@@ -89,6 +86,10 @@ impl BosonNLP {
         let mut res = if method == Method::Post {
             let req = req.header(ContentType(Mime(TopLevel::Application, SubLevel::Json,
                                              vec![(Attr::Charset, Value::Utf8)])));
+            body = match json::encode(data) {
+                Ok(d) => d,
+                Err(..) => "".to_owned(),
+            };
             if self.compress && body.len() > 10240 {
                 let mut encoder = GzEncoder::new(Vec::new(), Compression::Default);
                 try!(encoder.write(body.as_bytes()));

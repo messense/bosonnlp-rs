@@ -1,8 +1,10 @@
-use std::io::Read;
+use std::io::{Read, Write};
 
 use jsonway;
 use url::Url;
 use uuid::Uuid;
+use flate2::Compression;
+use flate2::write::GzEncoder;
 use hyper::Client;
 use hyper::method::Method;
 use hyper::header::{UserAgent, Accept, ContentLength, ContentType, qitem};
@@ -78,17 +80,23 @@ impl BosonNLP {
             Ok(d) => d,
             Err(..) => "".to_owned(),
         };
+        let compressed;
         let req = self.client.request(method.clone(), url)
                              .header(UserAgent(format!("bosonnlp-rs/{}", env!("CARGO_PKG_VERSION"))))
                              .header(Accept(vec![qitem(Mime(TopLevel::Application, SubLevel::Json,
                                                             vec![(Attr::Charset, Value::Utf8)]))]))
                              .header(XToken(self.token.clone()));
         let mut res = if method == Method::Post {
-            // TODO: support GZip compress
             let req = req.header(ContentType(Mime(TopLevel::Application, SubLevel::Json,
-                                             vec![(Attr::Charset, Value::Utf8)])))
-                         .body(&body);
-            try!(req.send())
+                                             vec![(Attr::Charset, Value::Utf8)])));
+            if self.compress && body.len() > 10240 {
+                let mut encoder = GzEncoder::new(Vec::new(), Compression::Default);
+                try!(encoder.write(body.as_bytes()));
+                compressed = try!(encoder.finish());
+                try!(req.body(&compressed[..]).send())
+            } else {
+                try!(req.body(&body).send())
+            }
         } else {
             try!(req.send())
         };

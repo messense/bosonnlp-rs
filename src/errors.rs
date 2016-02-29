@@ -7,20 +7,30 @@ use hyper::status::StatusCode;
 use rustc_serialize::json::{DecoderError, EncoderError};
 
 
+/// BosonNLP API 错误类型
 #[derive(Debug)]
 pub enum Error {
+    /// 编码错误
     Encoding(EncoderError),
+    /// 解码错误
     Decoding(DecoderError),
+    /// I/O 错误
     Io(io::Error),
+    /// HTTP 请求错误
     Http(HTTPError),
+    /// API 错误
     Api {
         code: StatusCode,
         reason: String,
     },
+    /// 聚类任务未找到
     TaskNotFound {
+        /// 聚类任务 ID
         task_id: String,
     },
+    /// 聚类任务超时
     Timeout {
+        /// 聚类任务 ID
         task_id: String,
     },
 }

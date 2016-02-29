@@ -15,47 +15,66 @@ pub struct Dependency {
 /// 命名实体
 #[derive(Debug, RustcDecodable, Clone)]
 pub struct NamedEntity {
+    /// 命名实体结果
     pub entity: Vec<(usize, usize, String)>,
+    /// 词性标注结果
     pub tag: Vec<String>,
+    /// 分词结果
     pub word: Vec<String>,
 }
 
 /// 词性标注
 #[derive(Debug, RustcDecodable, Clone)]
 pub struct Tag {
+    /// 词性标注结果
     pub tag: Vec<String>,
+    /// 分词结果
     pub word: Vec<String>,
 }
 
 /// 文本聚类
 #[derive(Debug, RustcDecodable, Clone)]
 pub struct TextCluster {
+    /// 该 cluster 最具代表性的文档
     pub _id: String,
+    /// 所有属于该 cluster 的文档 ``_id``
     pub list: Vec<String>,
+    /// 该 cluster 包含的文档数目
     pub num: usize,
 }
 
 /// 典型意见
 #[derive(Debug, RustcDecodable, Clone)]
 pub struct CommentsCluster {
+    /// 该典型意见的标示
     pub _id: usize,
+    /// 所有属于该典型意见的评论
     pub list: Vec<(String, String)>,
+    /// 该典型意见类似的意见个数
     pub num: usize,
+    /// 典型意见文本
     pub opinion: String,
 }
 
 /// 聚类任务状态
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum TaskStatus {
+    /// 成功接收到分析请求
     Received,
+    /// 数据分析正在进行中
     Running,
+    /// 分析已完成
     Done,
+    /// 分析遇到错误退出
     Error,
 }
 
+/// 聚类任务单个输入内容
 #[derive(Debug, Clone, RustcEncodable)]
 pub struct ClusterContent {
+    /// 文档编号
     pub _id: String,
+    /// 文档内容
     pub text: String,
 }
 

@@ -32,7 +32,7 @@ First you need to export a shell variable called ``BOSON_API_TOKEN`` and then ru
 $ cargo test
 ```
 
-## Documentation
+## [Documentation](http://messense.github.io/bosonnlp-rs/bosonnlp/index.html)
 
 For BosonNLP REST API documentation, please visit http://docs.bosonnlp.com/index.html
 
@@ -43,6 +43,8 @@ $ cargo doc
 ```
 
 Then you will be able to open the documentation under ``target/doc/bosonnlp`` directory.
+
+Wait, of course you can read it [online](http://messense.github.io/bosonnlp-rs/bosonnlp/index.html).
 
 ## License
 

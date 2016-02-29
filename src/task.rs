@@ -55,6 +55,7 @@ impl<'a> Task for ClusterTask<'a> {
         for parts in contents.chunks(100) {
             let data = parts.to_json();
             try!(self.nlp.post(&endpoint, vec![], &data));
+            info!("Pushed {} of {} documents for clustering", parts.len(), contents.len());
         }
         self.contents.extend_from_slice(contents);
         Ok(true)
@@ -67,6 +68,7 @@ impl<'a> Task for ClusterTask<'a> {
         let beta_str = beta.to_string();
         let params = vec![("alpha", alpha_str.as_ref()), ("beta", beta_str.as_ref())];
         try!(self.nlp.get(&endpoint, params));
+        info!("Cluster task {} analysis started", self.task_id);
         Ok(())
     }
 
@@ -75,6 +77,7 @@ impl<'a> Task for ClusterTask<'a> {
         let endpoint = format!("/cluster/status/{}", self.task_id);
         let status_resp = try!(self.nlp.get::<TaskStatusResp>(&endpoint, vec![]));
         let status_str = status_resp.status.to_lowercase();
+        info!("Cluster task {} status: {}", self.task_id, status_str);
         let ret = match status_str.as_ref() {
             "received" => TaskStatus::Received,
             "running" => TaskStatus::Running,
@@ -96,6 +99,7 @@ impl<'a> Task for ClusterTask<'a> {
     fn clear(&self) -> Result<()> {
         let endpoint = format!("/cluster/clear/{}", self.task_id);
         try!(self.nlp.get(&endpoint, vec![]));
+        info!("Cluster task {} cleared", self.task_id);
         Ok(())
     }
 
@@ -156,6 +160,7 @@ impl<'a> Task for CommentsTask<'a> {
         for parts in contents.chunks(100) {
             let data = parts.to_json();
             try!(self.nlp.post(&endpoint, vec![], &data));
+            info!("Pushed {} of {} documents for comments clustering", parts.len(), contents.len());
         }
         self.contents.extend_from_slice(contents);
         Ok(true)
@@ -168,6 +173,7 @@ impl<'a> Task for CommentsTask<'a> {
         let beta_str = beta.to_string();
         let params = vec![("alpha", alpha_str.as_ref()), ("beta", beta_str.as_ref())];
         try!(self.nlp.get(&endpoint, params));
+        info!("Comments task {} analysis started", self.task_id);
         Ok(())
     }
 
@@ -176,6 +182,7 @@ impl<'a> Task for CommentsTask<'a> {
         let endpoint = format!("/comments/status/{}", self.task_id);
         let status_resp = try!(self.nlp.get::<TaskStatusResp>(&endpoint, vec![]));
         let status_str = status_resp.status.to_lowercase();
+        info!("Comments task {} status: {}", self.task_id, status_str);
         let ret = match status_str.as_ref() {
             "received" => TaskStatus::Received,
             "running" => TaskStatus::Running,
@@ -197,6 +204,7 @@ impl<'a> Task for CommentsTask<'a> {
     fn clear(&self) -> Result<()> {
         let endpoint = format!("/comments/clear/{}", self.task_id);
         try!(self.nlp.get(&endpoint, vec![]));
+        info!("Comments task {} cleared", self.task_id);
         Ok(())
     }
 

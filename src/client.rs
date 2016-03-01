@@ -13,7 +13,7 @@ use rustc_serialize::{Encodable, Decodable};
 use rustc_serialize::json::{self, Json, ToJson};
 
 use errors::Error;
-use rep::{Dependency, NamedEntity, Tag, ClusterContent, TextCluster, CommentsCluster};
+use rep::{Dependency, NamedEntity, Tag, TextCluster, CommentsCluster, IntoClusterInput};
 use task::{ClusterTask, CommentsTask, Task};
 
 
@@ -413,27 +413,25 @@ impl BosonNLP {
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
     ///     let contents = vec![
-    ///         ClusterContent::from("今天天气好"),
-    ///         ClusterContent::from("今天天气好"),
-    ///         ClusterContent::from("今天天气不错"),
-    ///         ClusterContent::from("点点楼头细雨"),
-    ///         ClusterContent::from("重重江外平湖"),
-    ///         ClusterContent::from("当年戏马会东徐"),
-    ///         ClusterContent::from("今日凄凉南浦"),
+    ///         "今天天气好",
+    ///         "今天天气好",
+    ///         "今天天气不错",
+    ///         "点点楼头细雨",
+    ///         "重重江外平湖",
+    ///         "当年戏马会东徐",
+    ///         "今日凄凉南浦",
     ///     ];
-    ///     let rs = nlp.cluster(&vec![], None, 0.8, 0.45, Some(10)).unwrap();
-    ///     assert_eq!(0, rs.len());
-    ///     let rs = nlp.cluster(&contents, None, 0.8, 0.45, Some(10)).unwrap();
+    ///     let rs = nlp.cluster(contents, None, 0.8, 0.45, Some(10)).unwrap();
     ///     assert_eq!(1, rs.len());
     /// }
     /// ```
-    pub fn cluster(&self,
-                   contents: &[ClusterContent],
-                   task_id: Option<&str>,
-                   alpha: f32,
-                   beta: f32,
-                   timeout: Option<u64>)
-                   -> Result<Vec<TextCluster>> {
+    pub fn cluster<T: IntoClusterInput>(&self,
+                                        contents: T,
+                                        task_id: Option<&str>,
+                                        alpha: f32,
+                                        beta: f32,
+                                        timeout: Option<u64>)
+                                        -> Result<Vec<TextCluster>> {
         let mut task = match task_id {
             Some(_id) => ClusterTask::new(self, _id),
             None => {
@@ -441,7 +439,7 @@ impl BosonNLP {
                 ClusterTask::new(self, _id)
             }
         };
-        if !try!(task.push(contents)) {
+        if !try!(task.push(&contents.into_cluster_input())) {
             return Ok(vec![]);
         }
         try!(task.analysis(alpha, beta));
@@ -471,34 +469,32 @@ impl BosonNLP {
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
     ///     let contents = vec![
-    ///         ClusterContent::from("今天天气好"),
-    ///         ClusterContent::from("今天天气好"),
-    ///         ClusterContent::from("今天天气不错"),
-    ///         ClusterContent::from("点点楼头细雨"),
-    ///         ClusterContent::from("重重江外平湖"),
-    ///         ClusterContent::from("当年戏马会东徐"),
-    ///         ClusterContent::from("今日凄凉南浦"),
-    ///         ClusterContent::from("今天天气好"),
-    ///         ClusterContent::from("今天天气好"),
-    ///         ClusterContent::from("今天天气不错"),
-    ///         ClusterContent::from("点点楼头细雨"),
-    ///         ClusterContent::from("重重江外平湖"),
-    ///         ClusterContent::from("当年戏马会东徐"),
-    ///         ClusterContent::from("今日凄凉南浦"),
+    ///         "今天天气好",
+    ///         "今天天气好",
+    ///         "今天天气不错",
+    ///         "点点楼头细雨",
+    ///         "重重江外平湖",
+    ///         "当年戏马会东徐",
+    ///         "今日凄凉南浦",
+    ///         "今天天气好",
+    ///         "今天天气好",
+    ///         "今天天气不错",
+    ///         "点点楼头细雨",
+    ///         "重重江外平湖",
+    ///         "当年戏马会东徐",
+    ///         "今日凄凉南浦",
     ///     ];
-    ///     let rs = nlp.comments(&vec![], None, 0.8, 0.45, Some(10)).unwrap();
-    ///     assert_eq!(0, rs.len());
-    ///     let rs = nlp.comments(&contents, None, 0.8, 0.45, Some(10)).unwrap();
+    ///     let rs = nlp.comments(contents, None, 0.8, 0.45, Some(10)).unwrap();
     ///     assert_eq!(4, rs.len());
     /// }
     /// ```
-    pub fn comments(&self,
-                    contents: &[ClusterContent],
-                    task_id: Option<&str>,
-                    alpha: f32,
-                    beta: f32,
-                    timeout: Option<u64>)
-                    -> Result<Vec<CommentsCluster>> {
+    pub fn comments<T: IntoClusterInput>(&self,
+                                         contents: T,
+                                         task_id: Option<&str>,
+                                         alpha: f32,
+                                         beta: f32,
+                                         timeout: Option<u64>)
+                                         -> Result<Vec<CommentsCluster>> {
         let mut task = match task_id {
             Some(_id) => CommentsTask::new(self, _id),
             None => {
@@ -506,7 +502,7 @@ impl BosonNLP {
                 CommentsTask::new(self, _id)
             }
         };
-        if !try!(task.push(contents)) {
+        if !try!(task.push(&contents.into_cluster_input())) {
             return Ok(vec![]);
         }
         try!(task.analysis(alpha, beta));

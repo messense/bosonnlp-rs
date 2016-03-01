@@ -70,7 +70,7 @@ pub enum TaskStatus {
 }
 
 /// 聚类任务单个输入内容
-#[derive(Debug, Clone, RustcEncodable)]
+#[derive(Debug, Clone, RustcEncodable, PartialEq, Eq, Hash)]
 pub struct ClusterContent {
     /// 文档编号
     pub _id: String,
@@ -103,5 +103,34 @@ impl<'a> From<&'a str> for ClusterContent {
             _id: Uuid::new_v4().to_simple_string(),
             text: String::from(content),
         }
+    }
+}
+
+/// 将其他类型转换成聚类需要的数据类型
+pub trait IntoClusterInput {
+    fn into_cluster_input(self) -> Vec<ClusterContent>;
+}
+
+
+impl<T: Into<ClusterContent>> IntoClusterInput for Vec<T> {
+    fn into_cluster_input(self) -> Vec<ClusterContent> {
+        let mut ret = vec![];
+        for item in self {
+            ret.push(item.into());
+        }
+        ret
+    }
+}
+
+impl<T: Into<String>> IntoClusterInput for Vec<(T, T)> {
+    fn into_cluster_input(self) -> Vec<ClusterContent> {
+        let mut ret = vec![];
+        for item in self {
+            ret.push(ClusterContent {
+                _id: item.0.into(),
+                text: item.1.into(),
+            });
+        }
+        ret
     }
 }

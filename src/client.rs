@@ -86,9 +86,7 @@ impl BosonNLP {
                                                      vec![(Attr::Charset, Value::Utf8)]))]))
                       .header(XToken(self.token.clone()));
         let mut res = if method == Method::Post {
-            let req = req.header(ContentType(Mime(TopLevel::Application,
-                                                  SubLevel::Json,
-                                                  vec![(Attr::Charset, Value::Utf8)])));
+            let req = req.header(ContentType::json());
             body = match json::encode(data) {
                 Ok(d) => d,
                 Err(..) => "".to_owned(),

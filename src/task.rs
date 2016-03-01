@@ -8,7 +8,9 @@ use super::{BosonNLP, Result};
 use rep::{TextCluster, CommentsCluster, TaskStatus, ClusterContent};
 use errors::Error;
 
+/// 聚类任务属性
 pub trait TaskProperty {
+    /// 任务 ID
     fn task_id(&self) -> String;
 }
 

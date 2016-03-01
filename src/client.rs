@@ -7,7 +7,7 @@ use flate2::Compression;
 use flate2::write::GzEncoder;
 use hyper::Client;
 use hyper::method::Method;
-use hyper::header::{UserAgent, Accept, ContentLength, ContentType, qitem};
+use hyper::header::{UserAgent, Accept, ContentLength, ContentType, ContentEncoding, Encoding, qitem};
 use hyper::mime::{Mime, TopLevel, SubLevel, Attr, Value};
 use rustc_serialize::{Encodable, Decodable};
 use rustc_serialize::json::{self, Json, ToJson};
@@ -97,6 +97,7 @@ impl BosonNLP {
                 let mut encoder = GzEncoder::new(Vec::new(), Compression::Default);
                 try!(encoder.write(body.as_bytes()));
                 compressed = try!(encoder.finish());
+                let req = req.header(ContentEncoding(vec![Encoding::Gzip]));
                 try!(req.body(&compressed[..]).send())
             } else {
                 try!(req.body(&body).send())

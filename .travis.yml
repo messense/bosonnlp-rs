@@ -1,5 +1,12 @@
-sudo: required
+sudo: false
 language: rust
+addons:
+  apt:
+    packages:
+      - libcurl4-openssl-dev
+      - libelf-dev
+      - libdw-dev
+      - binutils-dev
 rust:
   - stable
   - beta
@@ -12,7 +19,7 @@ script:
   - travis-cargo --only stable doc
 after_success:
   - travis-cargo --only stable doc-upload
-  - travis-cargo coveralls
+  - travis-cargo coveralls --no-sudo --verify
 env:
   global:
     - secure: qNnYPnVjqjGm2BMyPvdE1kUVlX05JryZhAwAYmhMU3hmFEByPetBP6jOtnzKStEwAVbkB3+RQsAZOrO2rTcSa+pHYUo69+2hw4oI/2/gR/CKS9xO4nrxtpSpo84VStDWR8oxw4ozHZbjcUW6mZ+Cm4m0url3O8oakY+RTkeGQxrxpJUvZ0P2/z0fODabdahj5jdB3Sqc5pvMyyZ+MyvT5ph0IE0XNrcSD66vz69kwiq7Ls4JwYLNdlUWlmI33Wmv9q2tTvmNghVRL27wPgvidKidR+XSUwvh4VEToPPf8oxqOqW7vOVQ5s1LMuc+HvDnPkHBU0Olq/PrQMySzwIewFZb/Obd1ObwtlEPAUGoJxPnivCNFlw77ppNWCDO09R0Q7GiZNdhZqUKGo2BmVCvA1eJZziNq0/dUSlwIZJE3KOhoXDPbRIFS1QZ9QUNWXBJGXWIdZTx+EqeLBI08NkBCVauPFmj3tbi5ZD8nXYQG/PHzif5gQV84CJP6ziZb4F59Sa8I+NnbQFfsBB7Msj9o/rZzPcTQmEqeDUJ4JYv/JR8714I0jHg1nb7l8NuUZaJ6vbX3csgRB2G/jpOFx5kEWIyNZ+1+4CK0dzd1d083PMEOkR3/7LU8yfpKMC/OgU6mO80CNHl/W5jcUhRFNQXSTkqD75ZsmlagYotxG7bYa0=

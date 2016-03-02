@@ -233,9 +233,10 @@ impl BosonNLP {
     pub fn keywords<T: AsRef<str>>(&self, text: T, top_k: usize, segmented: bool) -> Result<Vec<(f32, String)>> {
         let data = text.as_ref().to_json();
         let top_k_str = top_k.to_string();
-        let params = match segmented {
-            true => vec![("top_k", top_k_str.as_ref()), ("segmented", "1")],
-            false => vec![("top_k", top_k_str.as_ref())],
+        let params = if segmented {
+            vec![("top_k", top_k_str.as_ref()), ("segmented", "1")]
+        } else {
+            vec![("top_k", top_k_str.as_ref())]
         };
         self.post::<Vec<(f32, String)>>("/keywords/analysis", params, &data)
     }
@@ -294,9 +295,10 @@ impl BosonNLP {
     pub fn ner(&self, contents: &[String], sensitivity: usize, segmented: bool) -> Result<Vec<NamedEntity>> {
         let data = contents.to_json();
         let sensitivity_str = sensitivity.to_string();
-        let params = match segmented {
-            true => vec![("sensitivity", sensitivity_str.as_ref()), ("segmented", "1")],
-            false => vec![("sensitivity", sensitivity_str.as_ref())],
+        let params = if segmented {
+            vec![("sensitivity", sensitivity_str.as_ref()), ("segmented", "1")]
+        } else {
+            vec![("sensitivity", sensitivity_str.as_ref())]
         };
         self.post::<Vec<NamedEntity>>("/ner/analysis", params, &data)
     }
@@ -334,13 +336,15 @@ impl BosonNLP {
                special_char_conv: bool)
                -> Result<Vec<Tag>> {
         let data = contents.to_json();
-        let t2s_str = match t2s {
-            true => "1",
-            false => "0",
+        let t2s_str = if t2s {
+            "1"
+        } else {
+            "0"
         };
-        let special_char_conv_str = match special_char_conv {
-            true => "1",
-            false => "0",
+        let special_char_conv_str = if special_char_conv {
+            "1"
+        } else {
+            "0"
         };
         let space_mode_str = space_mode.to_string();
         let oov_level_str = oov_level.to_string();

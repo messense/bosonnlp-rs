@@ -27,6 +27,12 @@
 //! ```
 //!
 //! 可以在 [BosonNLP 文档网站](http://docs.bosonnlp.com) 阅读详细的 BosonNLP REST API 文档。
+#![cfg_attr(feature="clippy", feature(plugin))]
+#![cfg_attr(feature="clippy", plugin(clippy))]
+#![cfg_attr(feature="clippy", deny(clippy))]
+#![cfg_attr(feature="clippy", warn(cyclomatic_complexity))]
+#![cfg_attr(feature="clippy", allow(used_underscore_binding))]
+
 #[macro_use]
 extern crate log;
 extern crate url;

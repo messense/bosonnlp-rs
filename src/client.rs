@@ -1,3 +1,4 @@
+use std::fmt;
 use std::io::{Read, Write};
 
 use jsonway;
@@ -516,5 +517,21 @@ impl BosonNLP {
         let result = try!(task.result());
         try!(task.clear());
         Ok(result)
+    }
+}
+
+impl fmt::Debug for BosonNLP {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.debug_struct("BosonNLP")
+           .field("token", &self.token)
+           .field("compress", &self.compress)
+           .field("bosonnlp_url", &self.bosonnlp_url)
+           .finish()
+    }
+}
+
+impl Clone for BosonNLP {
+    fn clone(&self) -> BosonNLP {
+        BosonNLP::with_options(self.token.clone(), self.bosonnlp_url.clone(), self.compress)
     }
 }

@@ -1,6 +1,7 @@
 //! BosonNLP 部分 API 输入/返回类型
 use jsonway;
 use uuid::Uuid;
+use rustc_serialize::{Decodable, Decoder};
 use rustc_serialize::json::{Json, ToJson};
 
 /// 依存文法
@@ -30,6 +31,33 @@ pub struct Tag {
     pub tag: Vec<String>,
     /// 分词结果
     pub word: Vec<String>,
+}
+
+/// 时间转换结果
+#[derive(Debug, Clone)]
+pub struct ConvertedTime {
+    /// 时间点，ISO8601 格式的时间字符串
+    pub timestamp: Option<String>,
+    /// 时间量，格式为 "xday,HH:MM:SS" 或 "HH:MM:SS" 的字符串
+    pub timedelta: Option<String>,
+    /// 表示时间点组成的时间区间结果，格式为 ``(timestamp, timestamp)``
+    ///  或 ``(timedelta, timedelta)`` 表示时间区间的起始和结束时间
+    pub timespan: Option<(String, String)>,
+    /// 时间数据格式, 有 ``timestamp``、``timedelta``、``timespan_0``、和 ``timespan_1``
+    pub format: String,
+}
+
+impl Decodable for ConvertedTime {
+    fn decode<D: Decoder>(decoder: &mut D) -> Result<ConvertedTime, D::Error> {
+        decoder.read_struct("root", 0, |decoder| {
+            Ok(ConvertedTime {
+                timestamp: try!(decoder.read_struct_field("timestamp", 0, |decoder| Decodable::decode(decoder))),
+                timedelta: try!(decoder.read_struct_field("timedelta", 0, |decoder| Decodable::decode(decoder))),
+                timespan: try!(decoder.read_struct_field("timespan", 0, |decoder| Decodable::decode(decoder))),
+                format: try!(decoder.read_struct_field("type", 0, |decoder| Decodable::decode(decoder))),
+            })
+        })
+    }
 }
 
 /// 文本聚类

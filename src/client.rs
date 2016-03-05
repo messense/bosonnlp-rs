@@ -14,7 +14,7 @@ use rustc_serialize::{Encodable, Decodable};
 use rustc_serialize::json::{self, Json, ToJson};
 
 use errors::Error;
-use rep::{Dependency, NamedEntity, Tag, TextCluster, CommentsCluster, IntoClusterInput};
+use rep::{Dependency, NamedEntity, Tag, TextCluster, CommentsCluster, IntoClusterInput, ConvertedTime};
 use task::{ClusterTask, CommentsTask, Task};
 
 
@@ -162,6 +162,36 @@ impl BosonNLP {
         let endpoint = format!("/sentiment/analysis?{}", model);
         let data = contents.to_json();
         self.post::<Vec<(f32, f32)>>(&endpoint, vec![], &data)
+    }
+
+    /// [时间转换接口](http://docs.bosonnlp.com/time.html)
+    ///
+    /// ``content``: 需要做时间转换的文本
+    ///
+    /// ``basetime``: 时间描述时的基准时间戳。如果为 ``None`` ，使用服务器当前的GMT+8时间
+    ///
+    /// # 使用示例
+    ///
+    /// ```
+    /// extern crate bosonnlp;
+    ///
+    /// use bosonnlp::BosonNLP;
+    ///
+    /// fn main() {
+    ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
+    ///     let time = nlp.convert_time("2013年二月二十八日下午四点三十分二十九秒", None).unwrap();
+    ///     assert_eq!("2013-02-28 16:30:29", &time.timestamp.unwrap());
+    ///     assert_eq!("timestamp", &time.format);
+    /// }
+    /// ```
+    pub fn convert_time<T: AsRef<str>>(&self, content: T, basetime: Option<T>) -> Result<ConvertedTime> {
+        if let Some(base) = basetime {
+            let params = vec![("pattern", content.as_ref()), ("basetime", base.as_ref())];
+            return self.post::<ConvertedTime>("/time/analysis", params, &Json::String("".to_owned()));
+        } else {
+            let params = vec![("pattern", content.as_ref())];
+            return self.post::<ConvertedTime>("/time/analysis", params, &Json::String("".to_owned()));
+        };
     }
 
     /// [新闻分类接口](http://docs.bosonnlp.com/classify.html)

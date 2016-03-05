@@ -126,10 +126,12 @@ impl BosonNLP {
         Ok(try!(json::decode::<D>(&body)))
     }
 
+    #[doc(hidden)]
     pub fn get<D: Decodable>(&self, endpoint: &str, params: Vec<(&str, &str)>) -> Result<D> {
         self.request(Method::Get, endpoint, params, &json::Object::new())
     }
 
+    #[doc(hidden)]
     pub fn post<D>(&self, endpoint: &str, params: Vec<(&str, &str)>, data: &Json) -> Result<D>
         where D: Decodable
     {

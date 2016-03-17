@@ -1,4 +1,3 @@
-use std::fmt;
 use std::io::{Read, Write};
 
 use jsonway;
@@ -28,6 +27,7 @@ header! { (XToken, "X-Token") => [String] }
 pub type Result<T> = ::std::result::Result<T, Error>;
 
 /// [BosonNLP](http://bosonnlp.com) REST API 访问的封装
+#[derive(Debug)]
 pub struct BosonNLP {
     /// 用于 API 鉴权的 API Token
     pub token: String,
@@ -547,16 +547,6 @@ impl BosonNLP {
         let result = try!(task.result());
         try!(task.clear());
         Ok(result)
-    }
-}
-
-impl fmt::Debug for BosonNLP {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        fmt.debug_struct("BosonNLP")
-           .field("token", &self.token)
-           .field("compress", &self.compress)
-           .field("bosonnlp_url", &self.bosonnlp_url)
-           .finish()
     }
 }
 

@@ -445,7 +445,7 @@ impl BosonNLP {
     /// ```
     /// extern crate bosonnlp;
     ///
-    /// use bosonnlp::{BosonNLP, ClusterContent};
+    /// use bosonnlp::BosonNLP;
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
@@ -501,7 +501,7 @@ impl BosonNLP {
     /// ```
     /// extern crate bosonnlp;
     ///
-    /// use bosonnlp::{BosonNLP, ClusterContent};
+    /// use bosonnlp::BosonNLP;
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));

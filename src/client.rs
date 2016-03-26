@@ -387,7 +387,7 @@ impl BosonNLP {
             ("t2s", t2s_str),
             ("special_char_conv", special_char_conv_str),
         ];
-        self.post("/tag/analysis", params, &data)
+        self.post::<Vec<Tag>>("/tag/analysis", params, &data)
     }
 
     /// [新闻摘要接口](http://docs.bosonnlp.com/summary.html)

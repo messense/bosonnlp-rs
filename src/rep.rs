@@ -119,7 +119,7 @@ impl ToJson for ClusterContent {
 impl From<String> for ClusterContent {
     fn from(content: String) -> ClusterContent {
         ClusterContent {
-            _id: Uuid::new_v4().to_simple_string(),
+            _id: Uuid::new_v4().simple().to_string(),
             text: content,
         }
     }
@@ -128,7 +128,7 @@ impl From<String> for ClusterContent {
 impl<'a> From<&'a str> for ClusterContent {
     fn from(content: &'a str) -> ClusterContent {
         ClusterContent {
-            _id: Uuid::new_v4().to_simple_string(),
+            _id: Uuid::new_v4().simple().to_string(),
             text: String::from(content),
         }
     }

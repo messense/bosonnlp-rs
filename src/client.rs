@@ -472,7 +472,7 @@ impl BosonNLP {
         let mut task = match task_id {
             Some(_id) => ClusterTask::new(self, _id),
             None => {
-                let _id = Uuid::new_v4().to_simple_string();
+                let _id = Uuid::new_v4().simple().to_string();
                 ClusterTask::new(self, _id)
             }
         };
@@ -535,7 +535,7 @@ impl BosonNLP {
         let mut task = match task_id {
             Some(_id) => CommentsTask::new(self, _id),
             None => {
-                let _id = Uuid::new_v4().to_simple_string();
+                let _id = Uuid::new_v4().simple().to_string();
                 CommentsTask::new(self, _id)
             }
         };

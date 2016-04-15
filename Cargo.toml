@@ -5,7 +5,7 @@ keywords = ["nlp", "bosonnlp", "tag", "ner"]
 license = "MIT"
 name = "bosonnlp"
 readme = "README.md"
-version = "0.2.4"
+version = "0.2.5"
 homepage = "https://github.com/messense/bosonnlp-rs"
 repository = "https://github.com/messense/bosonnlp-rs"
 documentation = "https://messense.github.io/bosonnlp-rs"
@@ -17,7 +17,7 @@ jsonway = "0.3"
 log = "0.3"
 rustc-serialize = "0.3"
 url = "0.5"
-uuid = "0.1"
+uuid = "0.2"
 clippy = { version = "^0.*", optional = true }
 
 [features]

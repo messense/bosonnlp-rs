@@ -76,7 +76,7 @@ impl BosonNLP {
     {
         let url_string = format!("{}{}", self.bosonnlp_url, endpoint);
         let mut url = Url::parse(&url_string).unwrap();
-        url.set_query_from_pairs(params.into_iter());
+        url.query_pairs_mut().extend_pairs(params.into_iter());
         let body;
         let compressed;
         let req = self.client

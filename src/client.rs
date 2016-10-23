@@ -1,6 +1,9 @@
 use std::io::{Read, Write};
 
 use jsonway;
+use serde::{Serialize, Deserialize};
+use serde_json::{self, Value, Map};
+use serde_json::value::ToJson;
 use url::Url;
 use uuid::Uuid;
 use flate2::Compression;
@@ -8,11 +11,9 @@ use flate2::write::GzEncoder;
 use hyper::Client;
 use hyper::method::Method;
 use hyper::header::{UserAgent, Accept, ContentLength, ContentType, ContentEncoding, Encoding, qitem};
-use hyper::mime::{Mime, TopLevel, SubLevel, Attr, Value};
-use rustc_serialize::{Encodable, Decodable};
-use rustc_serialize::json::{self, Json, ToJson};
+use hyper::mime::{Mime, TopLevel, SubLevel, Attr, Value as MimeValue};
 
-use errors::Error;
+use errors::*;
 use rep::{Dependency, NamedEntity, Tag, TextCluster, CommentsCluster, IntoClusterInput, ConvertedTime};
 use task::{ClusterTask, CommentsTask, Task};
 
@@ -22,9 +23,6 @@ const DEFAULT_BOSONNLP_URL: &'static str = "http://api.bosonnlp.com";
 
 /// BosonNLP API 鉴权 HTTP Header
 header! { (XToken, "X-Token") => [String] }
-
-/// BosonNLP API 返回结果类型
-pub type Result<T> = ::std::result::Result<T, Error>;
 
 /// [BosonNLP](http://bosonnlp.com) REST API 访问的封装
 #[derive(Debug)]
@@ -71,8 +69,8 @@ impl BosonNLP {
     }
 
     fn request<D, E>(&self, method: Method, endpoint: &str, params: Vec<(&str, &str)>, data: &E) -> Result<D>
-        where D: Decodable,
-              E: Encodable
+        where D: Deserialize,
+              E: Serialize
     {
         let url_string = format!("{}{}", self.bosonnlp_url, endpoint);
         let mut url = Url::parse(&url_string).unwrap();
@@ -84,11 +82,11 @@ impl BosonNLP {
                       .header(UserAgent(format!("bosonnlp-rs/{}", env!("CARGO_PKG_VERSION"))))
                       .header(Accept(vec![qitem(Mime(TopLevel::Application,
                                                      SubLevel::Json,
-                                                     vec![(Attr::Charset, Value::Utf8)]))]))
+                                                     vec![(Attr::Charset, MimeValue::Utf8)]))]))
                       .header(XToken(self.token.clone()));
         let mut res = if method == Method::Post {
             let req = req.header(ContentType::json());
-            body = match json::encode(data) {
+            body = match serde_json::to_string(data) {
                 Ok(d) => d,
                 Err(..) => "".to_owned(),
             };
@@ -111,30 +109,30 @@ impl BosonNLP {
         try!(res.read_to_string(&mut body));
         debug!("rev response {:#?} {:#?}", res.status, body);
         if !res.status.is_success() {
-            let result = match Json::from_str(&body) {
+            let result: Value = match serde_json::from_str(&body) {
                 Ok(obj) => obj,
-                Err(..) => Json::Object(json::Object::new()),
+                Err(..) => Value::Object(Map::new()),
             };
             let message = match result.find("message") {
-                Some(msg) => msg.as_string().unwrap_or("").to_owned(),
+                Some(msg) => msg.as_str().unwrap_or("").to_owned(),
                 None => body,
             };
-            return Err(Error::Api {
+            return Err((ErrorKind::Api {
                 code: res.status,
                 reason: message,
-            });
+            }).into());
         }
-        Ok(try!(json::decode::<D>(&body)))
+        Ok(try!(serde_json::from_str::<D>(&body)))
     }
 
     #[doc(hidden)]
-    pub fn get<D: Decodable>(&self, endpoint: &str, params: Vec<(&str, &str)>) -> Result<D> {
-        self.request(Method::Get, endpoint, params, &json::Object::new())
+    pub fn get<D: Deserialize>(&self, endpoint: &str, params: Vec<(&str, &str)>) -> Result<D> {
+        self.request(Method::Get, endpoint, params, &Value::Null)
     }
 
     #[doc(hidden)]
-    pub fn post<D>(&self, endpoint: &str, params: Vec<(&str, &str)>, data: &Json) -> Result<D>
-        where D: Decodable
+    pub fn post<D>(&self, endpoint: &str, params: Vec<(&str, &str)>, data: &Value) -> Result<D>
+        where D: Deserialize
     {
         self.request(Method::Post, endpoint, params, data)
     }
@@ -187,10 +185,10 @@ impl BosonNLP {
     pub fn convert_time<T: AsRef<str>>(&self, content: T, basetime: Option<T>) -> Result<ConvertedTime> {
         if let Some(base) = basetime {
             let params = vec![("pattern", content.as_ref()), ("basetime", base.as_ref())];
-            return self.post::<ConvertedTime>("/time/analysis", params, &Json::String("".to_owned()));
+            return self.post::<ConvertedTime>("/time/analysis", params, &Value::String("".to_owned()));
         } else {
             let params = vec![("pattern", content.as_ref())];
-            return self.post::<ConvertedTime>("/time/analysis", params, &Json::String("".to_owned()));
+            return self.post::<ConvertedTime>("/time/analysis", params, &Value::String("".to_owned()));
         };
     }
 

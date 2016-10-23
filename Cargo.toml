@@ -1,24 +1,41 @@
 [package]
 authors = ["messense <messense@icloud.com>"]
+build = "build.rs"
 description = "BosonNLP SDK for Rust"
-keywords = ["nlp", "bosonnlp", "tag", "ner"]
+documentation = "https://messense.github.io/bosonnlp-rs"
+homepage = "https://github.com/messense/bosonnlp-rs"
+keywords = ["nlp", "bosonnlp", "tag", "ner", "sentiment"]
 license = "MIT"
 name = "bosonnlp"
 readme = "README.md"
-version = "0.2.6"
-homepage = "https://github.com/messense/bosonnlp-rs"
 repository = "https://github.com/messense/bosonnlp-rs"
-documentation = "https://messense.github.io/bosonnlp-rs"
+version = "0.3.0"
 
 [dependencies]
+error-chain = "0.5"
 flate2 = "0.2"
 hyper = "0.9"
-jsonway = "0.3"
+jsonway = "1.0"
 log = "0.3"
-rustc-serialize = "0.3"
+serde = "0.8"
+serde_json = "0.8"
 url = "1.2"
-uuid = { version = "0.3", features = ["v4"] }
-clippy = { version = "^0.*", optional = true }
+
+[dependencies.clippy]
+optional = true
+version = "^0.*"
+
+[dependencies.uuid]
+features = ["v4"]
+version = "0.3"
+
+[dependencies.serde_derive]
+optional = true
+version = "0.8"
 
 [features]
-unstable = []
+default = ["serde_codegen"]
+unstable = ["serde_derive"]
+
+[build-dependencies]
+serde_codegen = { version = "0.8", optional = true }

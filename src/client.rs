@@ -78,12 +78,12 @@ impl BosonNLP {
         let body;
         let compressed;
         let req = self.client
-                      .request(method.clone(), url)
-                      .header(UserAgent(format!("bosonnlp-rs/{}", env!("CARGO_PKG_VERSION"))))
-                      .header(Accept(vec![qitem(Mime(TopLevel::Application,
-                                                     SubLevel::Json,
-                                                     vec![(Attr::Charset, MimeValue::Utf8)]))]))
-                      .header(XToken(self.token.clone()));
+            .request(method.clone(), url)
+            .header(UserAgent(format!("bosonnlp-rs/{}", env!("CARGO_PKG_VERSION"))))
+            .header(Accept(vec![qitem(Mime(TopLevel::Application,
+                                           SubLevel::Json,
+                                           vec![(Attr::Charset, MimeValue::Utf8)]))]))
+            .header(XToken(self.token.clone()));
         let mut res = if method == Method::Post {
             let req = req.header(ContentType::json());
             body = match serde_json::to_string(data) {
@@ -118,9 +118,10 @@ impl BosonNLP {
                 None => body,
             };
             return Err((ErrorKind::Api {
-                code: res.status,
-                reason: message,
-            }).into());
+                    code: res.status,
+                    reason: message,
+                })
+                .into());
         }
         Ok(try!(serde_json::from_str::<D>(&body)))
     }
@@ -367,16 +368,8 @@ impl BosonNLP {
                special_char_conv: bool)
                -> Result<Vec<Tag>> {
         let data = contents.to_json();
-        let t2s_str = if t2s {
-            "1"
-        } else {
-            "0"
-        };
-        let special_char_conv_str = if special_char_conv {
-            "1"
-        } else {
-            "0"
-        };
+        let t2s_str = if t2s { "1" } else { "0" };
+        let special_char_conv_str = if special_char_conv { "1" } else { "0" };
         let space_mode_str = space_mode.to_string();
         let oov_level_str = oov_level.to_string();
         let params = vec![
@@ -415,16 +408,16 @@ impl BosonNLP {
     /// ```
     pub fn summary<T: Into<String>>(&self, title: T, content: T, word_limit: f32, not_exceed: bool) -> Result<String> {
         let data = jsonway::object(|obj| {
-                       obj.set("title", title.into());
-                       obj.set("content", content.into());
-                       obj.set("percentage", word_limit);
-                       if not_exceed {
-                           obj.set("not_exceed", 1);
-                       } else {
-                           obj.set("not_exceed", 0);
-                       }
-                   })
-                       .unwrap();
+                obj.set("title", title.into());
+                obj.set("content", content.into());
+                obj.set("percentage", word_limit);
+                if not_exceed {
+                    obj.set("not_exceed", 1);
+                } else {
+                    obj.set("not_exceed", 0);
+                }
+            })
+            .unwrap();
         self.post::<String>("/summary/analysis", vec![], &data)
     }
 

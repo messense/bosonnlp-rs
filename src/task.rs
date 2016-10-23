@@ -42,7 +42,7 @@ pub trait Task: TaskProperty {
             if status == TaskStatus::Done {
                 return Ok(());
             }
-            elapsed = elapsed + seconds_to_sleep;
+            elapsed += seconds_to_sleep;
             if let Some(_timeout) = timeout {
                 if elapsed >= Duration::from_secs(_timeout) {
                     return Err(ErrorKind::Timeout(self.task_id()).into());
@@ -50,7 +50,7 @@ pub trait Task: TaskProperty {
             }
             i += 1usize;
             if i % 3usize == 0usize && seconds_to_sleep < Duration::from_secs(64u64) {
-                seconds_to_sleep = seconds_to_sleep + seconds_to_sleep;
+                seconds_to_sleep += seconds_to_sleep;
             }
         }
     }

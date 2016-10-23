@@ -40,7 +40,6 @@ extern crate url;
 extern crate uuid;
 #[macro_use]
 extern crate hyper;
-extern crate jsonway;
 extern crate flate2;
 extern crate serde;
 extern crate serde_json;

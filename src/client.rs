@@ -1,9 +1,9 @@
 use std::io::{Read, Write};
 
-use jsonway;
 use serde::{Serialize, Deserialize};
 use serde_json::{self, Value, Map};
 use serde_json::value::ToJson;
+use serde_json::builder::ObjectBuilder;
 use url::Url;
 use uuid::Uuid;
 use flate2::Compression;
@@ -407,17 +407,13 @@ impl BosonNLP {
     /// }
     /// ```
     pub fn summary<T: Into<String>>(&self, title: T, content: T, word_limit: f32, not_exceed: bool) -> Result<String> {
-        let data = jsonway::object(|obj| {
-                obj.set("title", title.into());
-                obj.set("content", content.into());
-                obj.set("percentage", word_limit);
-                if not_exceed {
-                    obj.set("not_exceed", 1);
-                } else {
-                    obj.set("not_exceed", 0);
-                }
-            })
-            .unwrap();
+        let not_exceed = if not_exceed { 1 } else { 0 };
+        let data = ObjectBuilder::new()
+            .insert("title", title.into())
+            .insert("content", content.into())
+            .insert("percentage", word_limit)
+            .insert("not_exceed", not_exceed)
+            .build();
         self.post::<String>("/summary/analysis", vec![], &data)
     }
 

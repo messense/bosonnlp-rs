@@ -16,11 +16,10 @@ before_script:
 script:
   - |
       if [ "$TRAVIS_RUST_VERSION" = nightly ]; then
-          travis-cargo build -- --features clippy
+          travis-cargo test -- --no-default-features --features "clippy unstable"
       else
-          travis-cargo build
+          travis-cargo test
       fi
-  - travis-cargo test
   - travis-cargo --only stable doc
 after_success:
   - travis-cargo --only stable doc-upload

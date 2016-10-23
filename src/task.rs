@@ -2,11 +2,10 @@ use std::time::Duration;
 use std::cmp::min;
 use std::thread;
 
-use rustc_serialize::json::ToJson;
-
-use super::{BosonNLP, Result};
-use rep::{TextCluster, CommentsCluster, TaskStatus, ClusterContent};
-use errors::Error;
+use serde_json::value::ToJson;
+use super::BosonNLP;
+use rep::{TextCluster, CommentsCluster, TaskStatus, ClusterContent, TaskPushResp, TaskStatusResp};
+use errors::*;
 
 /// 聚类任务属性
 pub trait TaskProperty {
@@ -46,7 +45,7 @@ pub trait Task: TaskProperty {
             elapsed = elapsed + seconds_to_sleep;
             if let Some(_timeout) = timeout {
                 if elapsed >= Duration::from_secs(_timeout) {
-                    return Err(Error::Timeout { task_id: self.task_id() });
+                    return Err(ErrorKind::Timeout(self.task_id()).into());
                 }
             }
             i += 1usize;
@@ -55,20 +54,6 @@ pub trait Task: TaskProperty {
             }
         }
     }
-}
-
-
-#[derive(Debug, RustcDecodable, Clone)]
-struct TaskPushResp {
-    pub task_id: String,
-    pub count: usize,
-}
-
-#[derive(Debug, RustcDecodable, Clone)]
-struct TaskStatusResp {
-    pub _id: String,
-    pub status: String,
-    pub count: usize,
 }
 
 /// 文本聚类任务
@@ -136,7 +121,7 @@ impl<'a> Task for ClusterTask<'a> {
             "running" => TaskStatus::Running,
             "done" => TaskStatus::Done,
             "error" => TaskStatus::Error,
-            "not found" => return Err(Error::TaskNotFound { task_id: self.task_id() }),
+            "not found" => return Err(ErrorKind::TaskNotFound(self.task_id()).into()),
             _ => unreachable!(),
         };
         Ok(ret)
@@ -222,7 +207,7 @@ impl<'a> Task for CommentsTask<'a> {
             "running" => TaskStatus::Running,
             "done" => TaskStatus::Done,
             "error" => TaskStatus::Error,
-            "not found" => return Err(Error::TaskNotFound { task_id: self.task_id() }),
+            "not found" => return Err(ErrorKind::TaskNotFound(self.task_id()).into()),
             _ => unreachable!(),
         };
         Ok(ret)

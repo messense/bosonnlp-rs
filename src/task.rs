@@ -38,7 +38,7 @@ pub trait Task: TaskProperty {
         let mut i = 0usize;
         loop {
             thread::sleep(seconds_to_sleep);
-            let status = try!(self.status());
+            let status = self.status()?;
             if status == TaskStatus::Done {
                 return Ok(());
             }
@@ -89,8 +89,8 @@ impl<'a> Task for ClusterTask<'a> {
             return Ok(false);
         }
         for parts in contents.chunks(100) {
-            let data = parts.to_json();
-            try!(self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data));
+            let data = parts.to_json()?;
+            self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data)?;
             info!("Pushed {} of {} documents for clustering",
                   parts.len(),
                   contents.len());
@@ -105,7 +105,7 @@ impl<'a> Task for ClusterTask<'a> {
         let alpha_str = alpha.to_string();
         let beta_str = beta.to_string();
         let params = vec![("alpha", alpha_str.as_ref()), ("beta", beta_str.as_ref())];
-        try!(self.nlp.get::<TaskStatusResp>(&endpoint, params));
+        self.nlp.get::<TaskStatusResp>(&endpoint, params)?;
         info!("Cluster task {} analysis started", self.task_id());
         Ok(())
     }
@@ -113,7 +113,7 @@ impl<'a> Task for ClusterTask<'a> {
     /// 获取任务状态
     fn status(&self) -> Result<TaskStatus> {
         let endpoint = format!("/cluster/status/{}", self.task_id());
-        let status_resp = try!(self.nlp.get::<TaskStatusResp>(&endpoint, vec![]));
+        let status_resp = self.nlp.get::<TaskStatusResp>(&endpoint, vec![])?;
         let status_str = status_resp.status.to_lowercase();
         info!("Cluster task {} status: {}", self.task_id(), status_str);
         let ret = match status_str.as_ref() {
@@ -175,8 +175,8 @@ impl<'a> Task for CommentsTask<'a> {
             return Ok(false);
         }
         for parts in contents.chunks(100) {
-            let data = parts.to_json();
-            try!(self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data));
+            let data = parts.to_json()?;
+            self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data)?;
             info!("Pushed {} of {} documents for comments clustering",
                   parts.len(),
                   contents.len());
@@ -191,7 +191,7 @@ impl<'a> Task for CommentsTask<'a> {
         let alpha_str = alpha.to_string();
         let beta_str = beta.to_string();
         let params = vec![("alpha", alpha_str.as_ref()), ("beta", beta_str.as_ref())];
-        try!(self.nlp.get::<TaskStatusResp>(&endpoint, params));
+        self.nlp.get::<TaskStatusResp>(&endpoint, params)?;
         info!("Comments task {} analysis started", self.task_id());
         Ok(())
     }
@@ -199,7 +199,7 @@ impl<'a> Task for CommentsTask<'a> {
     /// 获取任务状态
     fn status(&self) -> Result<TaskStatus> {
         let endpoint = format!("/comments/status/{}", self.task_id());
-        let status_resp = try!(self.nlp.get::<TaskStatusResp>(&endpoint, vec![]));
+        let status_resp = self.nlp.get::<TaskStatusResp>(&endpoint, vec![])?;
         let status_str = status_resp.status.to_lowercase();
         info!("Comments task {} status: {}", self.task_id(), status_str);
         let ret = match status_str.as_ref() {

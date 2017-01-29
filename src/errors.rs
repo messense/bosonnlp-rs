@@ -1,5 +1,3 @@
-use std::io;
-
 use hyper;
 use hyper::status::StatusCode;
 use serde_json;
@@ -12,9 +10,9 @@ error_chain! {
     links { }
 
     foreign_links {
-        io::Error, Io;
-        hyper::Error, Http;
-        serde_json::Error, SerdeJson;
+        Io(::std::io::Error);
+        Http(hyper::Error);
+        Json(serde_json::Error);
     }
 
     errors {

@@ -1,6 +1,5 @@
 [package]
 authors = ["messense <messense@icloud.com>"]
-build = "build.rs"
 description = "BosonNLP SDK for Rust"
 documentation = "https://messense.github.io/bosonnlp-rs"
 homepage = "https://github.com/messense/bosonnlp-rs"
@@ -12,12 +11,13 @@ repository = "https://github.com/messense/bosonnlp-rs"
 version = "0.3.0"
 
 [dependencies]
-error-chain = "0.5"
+error-chain = "0.8"
 flate2 = "0.2"
-hyper = "0.9"
+hyper = "0.10"
 log = "0.3"
-serde = "0.8"
-serde_json = "0.8"
+serde = "0.9"
+serde_derive = "0.9"
+serde_json = "0.9"
 url = "1.2"
 
 [dependencies.clippy]
@@ -27,14 +27,3 @@ version = "^0.*"
 [dependencies.uuid]
 features = ["v4"]
 version = "0.3"
-
-[dependencies.serde_derive]
-optional = true
-version = "0.8"
-
-[features]
-default = ["serde_codegen"]
-unstable = ["serde_derive"]
-
-[build-dependencies]
-serde_codegen = { version = "0.8", optional = true }

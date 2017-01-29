@@ -32,7 +32,6 @@
 #![cfg_attr(feature="clippy", plugin(clippy))]
 #![cfg_attr(feature="clippy", warn(cyclomatic_complexity))]
 #![cfg_attr(feature="clippy", allow(used_underscore_binding))]
-#![cfg_attr(feature = "serde_derive", feature(proc_macro))]
 
 #[macro_use]
 extern crate log;
@@ -42,12 +41,10 @@ extern crate uuid;
 extern crate hyper;
 extern crate flate2;
 extern crate serde;
-extern crate serde_json;
-
-#[cfg(feature = "serde_derive")]
 #[macro_use]
 extern crate serde_derive;
-
+#[macro_use]
+extern crate serde_json;
 #[macro_use]
 extern crate error_chain;
 

@@ -136,7 +136,7 @@ impl<'a> Task for ClusterTask<'a> {
     /// 清空服务器端缓存的文本和结果
     fn clear(&self) -> Result<()> {
         let endpoint = format!("/cluster/clear/{}", self.task_id());
-        self.nlp.get::<String>(&endpoint, vec![]).unwrap_or("".to_owned());
+        self.nlp.get::<String>(&endpoint, vec![]).unwrap_or_else(|_| "".to_owned());
         info!("Cluster task {} cleared", self.task_id());
         Ok(())
     }
@@ -222,7 +222,7 @@ impl<'a> Task for CommentsTask<'a> {
     /// 清空服务器端缓存的文本和结果
     fn clear(&self) -> Result<()> {
         let endpoint = format!("/comments/clear/{}", self.task_id());
-        self.nlp.get::<String>(&endpoint, vec![]).unwrap_or("".to_owned());
+        self.nlp.get::<String>(&endpoint, vec![]).unwrap_or_else(|_| "".to_owned());
         info!("Comments task {} cleared", self.task_id());
         Ok(())
     }

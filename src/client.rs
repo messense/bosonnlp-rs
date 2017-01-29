@@ -17,27 +17,27 @@ use rep::{Dependency, NamedEntity, Tag, TextCluster, CommentsCluster, IntoCluste
 use task::{ClusterTask, CommentsTask, Task};
 
 
-/// 默认的 BosonNLP API 服务器地址
+/// 默认的 `BosonNLP` API 服务器地址
 const DEFAULT_BOSONNLP_URL: &'static str = "http://api.bosonnlp.com";
 
-/// BosonNLP API 鉴权 HTTP Header
+/// `BosonNLP` API 鉴权 HTTP Header
 header! { (XToken, "X-Token") => [String] }
 
-/// [BosonNLP](http://bosonnlp.com) REST API 访问的封装
+/// [`BosonNLP`](http://bosonnlp.com) REST API 访问的封装
 #[derive(Debug)]
 pub struct BosonNLP {
     /// 用于 API 鉴权的 API Token
     pub token: String,
     /// 是否压缩大于 10K 的请求体，默认为 true
     pub compress: bool,
-    /// BosonNLP HTTP API 的 URL，默认为 `http://api.bosonnlp.com`
+    /// `BosonNLP` HTTP API 的 URL，默认为 `http://api.bosonnlp.com`
     bosonnlp_url: String,
     /// hyper http Client
     client: Client,
 }
 
 impl BosonNLP {
-    /// 初始化一个新的 ``BosonNLP`` 实例
+    /// 初始化一个新的 `BosonNLP` 实例
     pub fn new<T: Into<String>>(token: T) -> BosonNLP {
         BosonNLP {
             token: token.into(),
@@ -91,7 +91,7 @@ impl BosonNLP {
             };
             if self.compress && body.len() > 10240 {
                 let mut encoder = GzEncoder::new(Vec::new(), Compression::Default);
-                encoder.write(body.as_bytes())?;
+                encoder.write_all(body.as_bytes())?;
                 compressed = encoder.finish()?;
                 let req = req.header(ContentEncoding(vec![Encoding::Gzip]));
                 req.body(&compressed[..]).send()?

@@ -1,4 +1,4 @@
-//! [BonsonNLP](http://bosonnlp.com) SDK for Rust
+//! [`BosonNLP`](http://bosonnlp.com) SDK for Rust
 //!
 //!
 //! ## 安装
@@ -26,7 +26,7 @@
 //! }
 //! ```
 //!
-//! 可以在 [BosonNLP 文档网站](http://docs.bosonnlp.com) 阅读详细的 BosonNLP REST API 文档。
+//! 可以在 [`BosonNLP` 文档网站](http://docs.bosonnlp.com) 阅读详细的 `BosonNLP` REST API 文档。
 #![recursion_limit = "1024"]
 #![cfg_attr(feature="clippy", feature(plugin))]
 #![cfg_attr(feature="clippy", plugin(clippy))]

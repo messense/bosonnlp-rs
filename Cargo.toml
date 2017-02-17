@@ -11,7 +11,7 @@ repository = "https://github.com/messense/bosonnlp-rs"
 version = "0.3.0"
 
 [dependencies]
-error-chain = "0.8"
+error-chain = "0.9"
 flate2 = "0.2"
 hyper = "0.10"
 log = "0.3"

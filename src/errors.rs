@@ -1,4 +1,4 @@
-use hyper;
+use reqwest;
 use hyper::status::StatusCode;
 use serde_json;
 
@@ -11,7 +11,7 @@ error_chain! {
 
     foreign_links {
         Io(::std::io::Error);
-        Http(hyper::Error);
+        Http(reqwest::Error);
         Json(serde_json::Error);
     }
 

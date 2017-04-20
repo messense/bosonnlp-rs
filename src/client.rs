@@ -7,10 +7,10 @@ use url::Url;
 use uuid::Uuid;
 use flate2::Compression;
 use flate2::write::GzEncoder;
-use hyper::Client;
-use hyper::method::Method;
-use hyper::header::{UserAgent, Accept, ContentLength, ContentType, ContentEncoding, Encoding, qitem};
-use hyper::mime::{Mime, TopLevel, SubLevel, Attr, Value as MimeValue};
+use reqwest::Client;
+use reqwest::Method;
+use reqwest::header::{UserAgent, Accept, ContentLength, ContentType, ContentEncoding, Encoding, qitem};
+use reqwest::mime::{Mime, TopLevel, SubLevel, Attr, Value as MimeValue};
 
 use errors::*;
 use rep::{Dependency, NamedEntity, Tag, TextCluster, CommentsCluster, IntoClusterInput, ConvertedTime};
@@ -43,7 +43,7 @@ impl BosonNLP {
             token: token.into(),
             compress: true,
             bosonnlp_url: DEFAULT_BOSONNLP_URL.to_owned(),
-            client: Client::new(),
+            client: Client::new().expect("Error construct HTTP client"),
         }
     }
 
@@ -53,11 +53,11 @@ impl BosonNLP {
             token: token.into(),
             compress: compress,
             bosonnlp_url: bosonnlp_url.into(),
-            client: Client::new(),
+            client: Client::new().expect("Error construct HTTP client"),
         }
     }
 
-    /// 使用自定义的 hyper Client 初始化一个新的 ``BosonNLP`` 实例
+    /// 使用自定义的 reqwest Client 初始化一个新的 ``BosonNLP`` 实例
     pub fn with_client<T: Into<String>>(token: T, client: Client) -> BosonNLP {
         BosonNLP {
             token: token.into(),
@@ -96,18 +96,18 @@ impl BosonNLP {
                 let req = req.header(ContentEncoding(vec![Encoding::Gzip]));
                 req.body(&compressed[..]).send()?
             } else {
-                req.body(&body).send()?
+                req.body(body).send()?
             }
         } else {
             req.send()?
         };
-        let mut body = match res.headers.clone().get::<ContentLength>() {
+        let mut body = match res.headers().get::<ContentLength>() {
             Some(&ContentLength(len)) => String::with_capacity(len as usize),
             _ => String::new(),
         };
         res.read_to_string(&mut body)?;
-        debug!("rev response {:#?} {:#?}", res.status, body);
-        if !res.status.is_success() {
+        let status = res.status();
+        if !status.is_success() {
             let result: Value = match serde_json::from_str(&body) {
                 Ok(obj) => obj,
                 Err(..) => Value::Object(Map::new()),
@@ -117,7 +117,7 @@ impl BosonNLP {
                 None => body,
             };
             return Err((ErrorKind::Api {
-                    code: res.status,
+                    code: *status,
                     reason: message,
                 })
                 .into());

@@ -85,7 +85,7 @@ impl<'a> Task for ClusterTask<'a> {
     /// 批量上传需要处理的文本序列
     fn push(&mut self, contents: &[ClusterContent]) -> Result<bool> {
         let endpoint = format!("/cluster/push/{}", self.task_id());
-        if contents.len() == 0 {
+        if contents.is_empty() {
             return Ok(false);
         }
         for parts in contents.chunks(100) {
@@ -171,7 +171,7 @@ impl<'a> Task for CommentsTask<'a> {
     /// 批量上传需要处理的文本序列
     fn push(&mut self, contents: &[ClusterContent]) -> Result<bool> {
         let endpoint = format!("/comments/push/{}", self.task_id());
-        if contents.len() == 0 {
+        if contents.is_empty() {
             return Ok(false);
         }
         for parts in contents.chunks(100) {

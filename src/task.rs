@@ -2,7 +2,7 @@ use std::time::Duration;
 use std::cmp::min;
 use std::thread;
 
-use serde_json::value::ToJson;
+use serde_json;
 use super::BosonNLP;
 use rep::{TextCluster, CommentsCluster, TaskStatus, ClusterContent, TaskPushResp, TaskStatusResp};
 use errors::*;
@@ -89,7 +89,7 @@ impl<'a> Task for ClusterTask<'a> {
             return Ok(false);
         }
         for parts in contents.chunks(100) {
-            let data = parts.to_json()?;
+            let data = serde_json::to_value(parts)?;
             self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data)?;
             info!("Pushed {} of {} documents for clustering",
                   parts.len(),
@@ -175,7 +175,7 @@ impl<'a> Task for CommentsTask<'a> {
             return Ok(false);
         }
         for parts in contents.chunks(100) {
-            let data = parts.to_json()?;
+            let data = serde_json::to_value(parts)?;
             self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data)?;
             info!("Pushed {} of {} documents for comments clustering",
                   parts.len(),

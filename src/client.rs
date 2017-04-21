@@ -1,8 +1,8 @@
 use std::io::{Read, Write};
 
-use serde::{Serialize, Deserialize};
+use serde::Serialize;
+use serde::de::DeserializeOwned;
 use serde_json::{self, Value, Map};
-use serde_json::value::ToJson;
 use url::Url;
 use uuid::Uuid;
 use flate2::Compression;
@@ -68,7 +68,7 @@ impl BosonNLP {
     }
 
     fn request<D, E>(&self, method: Method, endpoint: &str, params: Vec<(&str, &str)>, data: &E) -> Result<D>
-        where D: Deserialize,
+        where D: DeserializeOwned,
               E: Serialize
     {
         let url_string = format!("{}{}", self.bosonnlp_url, endpoint);
@@ -126,13 +126,15 @@ impl BosonNLP {
     }
 
     #[doc(hidden)]
-    pub fn get<D: Deserialize>(&self, endpoint: &str, params: Vec<(&str, &str)>) -> Result<D> {
+    pub fn get<D>(&self, endpoint: &str, params: Vec<(&str, &str)>) -> Result<D> 
+        where D: DeserializeOwned
+    {
         self.request(Method::Get, endpoint, params, &Value::Null)
     }
 
     #[doc(hidden)]
     pub fn post<D>(&self, endpoint: &str, params: Vec<(&str, &str)>, data: &Value) -> Result<D>
-        where D: Deserialize
+        where D: DeserializeOwned
     {
         self.request(Method::Post, endpoint, params, data)
     }
@@ -158,7 +160,7 @@ impl BosonNLP {
     /// ```
     pub fn sentiment(&self, contents: &[String], model: &str) -> Result<Vec<(f32, f32)>> {
         let endpoint = format!("/sentiment/analysis?{}", model);
-        let data = contents.to_json()?;
+        let data = serde_json::to_value(contents)?;
         self.post::<Vec<(f32, f32)>>(&endpoint, vec![], &data)
     }
 
@@ -210,7 +212,7 @@ impl BosonNLP {
     /// }
     /// ```
     pub fn classify(&self, contents: &[String]) -> Result<Vec<usize>> {
-        let data = contents.to_json()?;
+        let data = serde_json::to_value(contents)?;
         self.post::<Vec<usize>>("/classify/analysis", vec![], &data)
     }
 
@@ -234,7 +236,7 @@ impl BosonNLP {
     /// }
     /// ```
     pub fn suggest<T: AsRef<str>>(&self, word: T, top_k: usize) -> Result<Vec<(f32, String)>> {
-        let data = word.as_ref().to_json()?;
+        let data = serde_json::to_value(word.as_ref())?;
         self.post::<Vec<(f32, String)>>("/suggest/analysis",
                                         vec![("top_k", &top_k.to_string())],
                                         &data)
@@ -262,7 +264,7 @@ impl BosonNLP {
     /// }
     /// ```
     pub fn keywords<T: AsRef<str>>(&self, text: T, top_k: usize, segmented: bool) -> Result<Vec<(f32, String)>> {
-        let data = text.as_ref().to_json()?;
+        let data = serde_json::to_value(text.as_ref())?;
         let top_k_str = top_k.to_string();
         let params = if segmented {
             vec![("top_k", top_k_str.as_ref()), ("segmented", "1")]
@@ -294,7 +296,7 @@ impl BosonNLP {
     /// }
     /// ```
     pub fn depparser(&self, contents: &[String]) -> Result<Vec<Dependency>> {
-        let data = contents.to_json()?;
+        let data = serde_json::to_value(contents)?;
         self.post::<Vec<Dependency>>("/depparser/analysis", vec![], &data)
     }
 
@@ -324,7 +326,7 @@ impl BosonNLP {
     /// }
     /// ```
     pub fn ner(&self, contents: &[String], sensitivity: usize, segmented: bool) -> Result<Vec<NamedEntity>> {
-        let data = contents.to_json()?;
+        let data = serde_json::to_value(contents)?;
         let sensitivity_str = sensitivity.to_string();
         let params = if segmented {
             vec![("sensitivity", sensitivity_str.as_ref()), ("segmented", "1")]
@@ -366,7 +368,7 @@ impl BosonNLP {
                t2s: bool,
                special_char_conv: bool)
                -> Result<Vec<Tag>> {
-        let data = contents.to_json()?;
+        let data = serde_json::to_value(contents)?;
         let t2s_str = if t2s { "1" } else { "0" };
         let special_char_conv_str = if special_char_conv { "1" } else { "0" };
         let space_mode_str = space_mode.to_string();

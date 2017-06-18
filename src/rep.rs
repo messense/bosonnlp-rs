@@ -114,40 +114,8 @@ impl From<String> for ClusterContent {
     }
 }
 
-impl<'a> From<&'a str> for ClusterContent {
-    fn from(content: &'a str) -> ClusterContent {
-        ClusterContent {
-            _id: Uuid::new_v4().simple().to_string(),
-            text: String::from(content),
-        }
-    }
-}
-
-/// 将其他类型转换成聚类需要的数据类型
-pub trait IntoClusterInput {
-    fn into_cluster_input(self) -> Vec<ClusterContent>;
-}
-
-
-impl<T: Into<ClusterContent>> IntoClusterInput for Vec<T> {
-    fn into_cluster_input(self) -> Vec<ClusterContent> {
-        let mut ret = vec![];
-        for item in self {
-            ret.push(item.into());
-        }
-        ret
-    }
-}
-
-impl<T: Into<String>> IntoClusterInput for Vec<(T, T)> {
-    fn into_cluster_input(self) -> Vec<ClusterContent> {
-        let mut ret = vec![];
-        for item in self {
-            ret.push(ClusterContent {
-                _id: item.0.into(),
-                text: item.1.into(),
-            });
-        }
-        ret
+impl<'a, T: ?Sized + AsRef<str>> From<&'a T> for ClusterContent {
+    fn from(content: &'a T) -> ClusterContent {
+        ClusterContent::from(content.as_ref().to_string())
     }
 }

@@ -1,4 +1,5 @@
 use std::io::{Read, Write};
+use std::iter::FromIterator;
 
 use serde::Serialize;
 use serde::de::DeserializeOwned;
@@ -13,7 +14,7 @@ use reqwest::header::{UserAgent, Accept, ContentLength, ContentType, ContentEnco
 use reqwest::mime::{Mime, TopLevel, SubLevel, Attr, Value as MimeValue};
 
 use errors::*;
-use rep::{Dependency, NamedEntity, Tag, TextCluster, CommentsCluster, IntoClusterInput, ConvertedTime};
+use rep::{Dependency, NamedEntity, Tag, TextCluster, CommentsCluster, ConvertedTime, ClusterContent};
 use task::{ClusterTask, CommentsTask, Task};
 
 
@@ -68,8 +69,9 @@ impl BosonNLP {
     }
 
     fn request<D, E>(&self, method: Method, endpoint: &str, params: Vec<(&str, &str)>, data: &E) -> Result<D>
-        where D: DeserializeOwned,
-              E: Serialize
+    where
+        D: DeserializeOwned,
+        E: Serialize,
     {
         let url_string = format!("{}{}", self.bosonnlp_url, endpoint);
         let mut url = Url::parse(&url_string).unwrap();
@@ -78,10 +80,16 @@ impl BosonNLP {
         let compressed;
         let req = self.client
             .request(method.clone(), url)
-            .header(UserAgent(format!("bosonnlp-rs/{}", env!("CARGO_PKG_VERSION"))))
-            .header(Accept(vec![qitem(Mime(TopLevel::Application,
-                                           SubLevel::Json,
-                                           vec![(Attr::Charset, MimeValue::Utf8)]))]))
+            .header(UserAgent(
+                format!("bosonnlp-rs/{}", env!("CARGO_PKG_VERSION")),
+            ))
+            .header(Accept(vec![
+                qitem(Mime(
+                    TopLevel::Application,
+                    SubLevel::Json,
+                    vec![(Attr::Charset, MimeValue::Utf8)],
+                )),
+            ]))
             .header(XToken(self.token.clone()));
         let mut res = if method == Method::Post {
             let req = req.header(ContentType::json());
@@ -116,25 +124,28 @@ impl BosonNLP {
                 Some(msg) => msg.as_str().unwrap_or("").to_owned(),
                 None => body,
             };
-            return Err((ErrorKind::Api {
-                    code: *status,
-                    reason: message,
-                })
-                .into());
+            return Err(
+                (ErrorKind::Api {
+                     code: *status,
+                     reason: message,
+                 }).into(),
+            );
         }
         Ok(serde_json::from_str::<D>(&body)?)
     }
 
     #[doc(hidden)]
-    pub fn get<D>(&self, endpoint: &str, params: Vec<(&str, &str)>) -> Result<D> 
-        where D: DeserializeOwned
+    pub fn get<D>(&self, endpoint: &str, params: Vec<(&str, &str)>) -> Result<D>
+    where
+        D: DeserializeOwned,
     {
         self.request(Method::Get, endpoint, params, &Value::Null)
     }
 
     #[doc(hidden)]
     pub fn post<D>(&self, endpoint: &str, params: Vec<(&str, &str)>, data: &Value) -> Result<D>
-        where D: DeserializeOwned
+    where
+        D: DeserializeOwned,
     {
         self.request(Method::Post, endpoint, params, data)
     }
@@ -237,9 +248,11 @@ impl BosonNLP {
     /// ```
     pub fn suggest<T: AsRef<str>>(&self, word: T, top_k: usize) -> Result<Vec<(f32, String)>> {
         let data = serde_json::to_value(word.as_ref())?;
-        self.post::<Vec<(f32, String)>>("/suggest/analysis",
-                                        vec![("top_k", &top_k.to_string())],
-                                        &data)
+        self.post::<Vec<(f32, String)>>(
+            "/suggest/analysis",
+            vec![("top_k", &top_k.to_string())],
+            &data,
+        )
     }
 
     /// [关键词提取接口](http://docs.bosonnlp.com/keywords.html)
@@ -329,7 +342,10 @@ impl BosonNLP {
         let data = serde_json::to_value(contents)?;
         let sensitivity_str = sensitivity.to_string();
         let params = if segmented {
-            vec![("sensitivity", sensitivity_str.as_ref()), ("segmented", "1")]
+            vec![
+                ("sensitivity", sensitivity_str.as_ref()),
+                ("segmented", "1"),
+            ]
         } else {
             vec![("sensitivity", sensitivity_str.as_ref())]
         };
@@ -361,13 +377,14 @@ impl BosonNLP {
     ///     assert_eq!(1, rs.len());
     /// }
     /// ```
-    pub fn tag(&self,
-               contents: &[String],
-               space_mode: usize,
-               oov_level: usize,
-               t2s: bool,
-               special_char_conv: bool)
-               -> Result<Vec<Tag>> {
+    pub fn tag(
+        &self,
+        contents: &[String],
+        space_mode: usize,
+        oov_level: usize,
+        t2s: bool,
+        special_char_conv: bool,
+    ) -> Result<Vec<Tag>> {
         let data = serde_json::to_value(contents)?;
         let t2s_str = if t2s { "1" } else { "0" };
         let special_char_conv_str = if special_char_conv { "1" } else { "0" };
@@ -446,17 +463,18 @@ impl BosonNLP {
     ///         "当年戏马会东徐",
     ///         "今日凄凉南浦",
     ///     ];
-    ///     let rs = nlp.cluster(contents, None, 0.8, 0.45, Some(10)).unwrap();
+    ///     let rs = nlp.cluster(&contents, None, 0.8, 0.45, Some(10)).unwrap();
     ///     assert_eq!(1, rs.len());
     /// }
     /// ```
-    pub fn cluster<T: IntoClusterInput>(&self,
-                                        contents: T,
-                                        task_id: Option<&str>,
-                                        alpha: f32,
-                                        beta: f32,
-                                        timeout: Option<u64>)
-                                        -> Result<Vec<TextCluster>> {
+    pub fn cluster<T: AsRef<str>>(
+        &self,
+        contents: &[T],
+        task_id: Option<&str>,
+        alpha: f32,
+        beta: f32,
+        timeout: Option<u64>,
+    ) -> Result<Vec<TextCluster>> {
         let mut task = match task_id {
             Some(_id) => ClusterTask::new(self, _id),
             None => {
@@ -464,7 +482,8 @@ impl BosonNLP {
                 ClusterTask::new(self, _id)
             }
         };
-        if !task.push(&contents.into_cluster_input())? {
+        let tasks: Vec<ClusterContent> = Vec::from_iter(contents.iter().map(|c| c.into()));
+        if !task.push(&tasks)? {
             return Ok(vec![]);
         }
         task.analysis(alpha, beta)?;
@@ -509,17 +528,18 @@ impl BosonNLP {
     ///         "当年戏马会东徐",
     ///         "今日凄凉南浦",
     ///     ];
-    ///     let rs = nlp.comments(contents, None, 0.8, 0.45, Some(10)).unwrap();
+    ///     let rs = nlp.comments(&contents, None, 0.8, 0.45, Some(10)).unwrap();
     ///     assert_eq!(4, rs.len());
     /// }
     /// ```
-    pub fn comments<T: IntoClusterInput>(&self,
-                                         contents: T,
-                                         task_id: Option<&str>,
-                                         alpha: f32,
-                                         beta: f32,
-                                         timeout: Option<u64>)
-                                         -> Result<Vec<CommentsCluster>> {
+    pub fn comments<T: AsRef<str>>(
+        &self,
+        contents: &[T],
+        task_id: Option<&str>,
+        alpha: f32,
+        beta: f32,
+        timeout: Option<u64>,
+    ) -> Result<Vec<CommentsCluster>> {
         let mut task = match task_id {
             Some(_id) => CommentsTask::new(self, _id),
             None => {
@@ -527,7 +547,8 @@ impl BosonNLP {
                 CommentsTask::new(self, _id)
             }
         };
-        if !task.push(&contents.into_cluster_input())? {
+        let tasks: Vec<ClusterContent> = Vec::from_iter(contents.iter().map(|c| c.into()));
+        if !task.push(&tasks)? {
             return Ok(vec![]);
         }
         task.analysis(alpha, beta)?;

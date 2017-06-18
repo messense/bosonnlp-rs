@@ -91,9 +91,11 @@ impl<'a> Task for ClusterTask<'a> {
         for parts in contents.chunks(100) {
             let data = serde_json::to_value(parts)?;
             self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data)?;
-            info!("Pushed {} of {} documents for clustering",
-                  parts.len(),
-                  contents.len());
+            info!(
+                "Pushed {} of {} documents for clustering",
+                parts.len(),
+                contents.len()
+            );
         }
         self.contents.extend_from_slice(contents);
         Ok(true)
@@ -136,7 +138,9 @@ impl<'a> Task for ClusterTask<'a> {
     /// 清空服务器端缓存的文本和结果
     fn clear(&self) -> Result<()> {
         let endpoint = format!("/cluster/clear/{}", self.task_id());
-        self.nlp.get::<String>(&endpoint, vec![]).unwrap_or_else(|_| "".to_owned());
+        self.nlp
+            .get::<String>(&endpoint, vec![])
+            .unwrap_or_else(|_| "".to_owned());
         info!("Cluster task {} cleared", self.task_id());
         Ok(())
     }
@@ -177,9 +181,11 @@ impl<'a> Task for CommentsTask<'a> {
         for parts in contents.chunks(100) {
             let data = serde_json::to_value(parts)?;
             self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data)?;
-            info!("Pushed {} of {} documents for comments clustering",
-                  parts.len(),
-                  contents.len());
+            info!(
+                "Pushed {} of {} documents for comments clustering",
+                parts.len(),
+                contents.len()
+            );
         }
         self.contents.extend_from_slice(contents);
         Ok(true)
@@ -222,7 +228,9 @@ impl<'a> Task for CommentsTask<'a> {
     /// 清空服务器端缓存的文本和结果
     fn clear(&self) -> Result<()> {
         let endpoint = format!("/comments/clear/{}", self.task_id());
-        self.nlp.get::<String>(&endpoint, vec![]).unwrap_or_else(|_| "".to_owned());
+        self.nlp
+            .get::<String>(&endpoint, vec![])
+            .unwrap_or_else(|_| "".to_owned());
         info!("Comments task {} cleared", self.task_id());
         Ok(())
     }

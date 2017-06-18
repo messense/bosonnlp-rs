@@ -37,6 +37,17 @@ pub struct BosonNLP {
     client: Client,
 }
 
+impl Default for BosonNLP {
+    fn default() -> BosonNLP {
+        BosonNLP {
+            token: "".to_string(),
+            compress: true,
+            bosonnlp_url: DEFAULT_BOSONNLP_URL.to_owned(),
+            client: Client::new().expect("Error construct HTTP client"),
+        }
+    }
+}
+
 impl BosonNLP {
     /// 初始化一个新的 `BosonNLP` 实例
     pub fn new<T: Into<String>>(token: T) -> BosonNLP {

@@ -25,7 +25,7 @@ const DEFAULT_BOSONNLP_URL: &'static str = "http://api.bosonnlp.com";
 header! { (XToken, "X-Token") => [String] }
 
 /// [`BosonNLP`](http://bosonnlp.com) REST API 访问的封装
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BosonNLP {
     /// 用于 API 鉴权的 API Token
     pub token: String,
@@ -556,11 +556,5 @@ impl BosonNLP {
         let result = task.result()?;
         task.clear()?;
         Ok(result)
-    }
-}
-
-impl Clone for BosonNLP {
-    fn clone(&self) -> BosonNLP {
-        BosonNLP::with_options(self.token.clone(), self.bosonnlp_url.clone(), self.compress)
     }
 }

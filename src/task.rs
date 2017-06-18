@@ -2,7 +2,6 @@ use std::time::Duration;
 use std::cmp::min;
 use std::thread;
 
-use serde_json;
 use super::BosonNLP;
 use rep::{TextCluster, CommentsCluster, TaskStatus, ClusterContent, TaskPushResp, TaskStatusResp};
 use errors::*;
@@ -89,8 +88,7 @@ impl<'a> Task for ClusterTask<'a> {
             return Ok(false);
         }
         for parts in contents.chunks(100) {
-            let data = serde_json::to_value(parts)?;
-            self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data)?;
+            let _: TaskPushResp = self.nlp.post(&endpoint, vec![], &parts)?;
             info!(
                 "Pushed {} of {} documents for clustering",
                 parts.len(),
@@ -107,7 +105,7 @@ impl<'a> Task for ClusterTask<'a> {
         let alpha_str = alpha.to_string();
         let beta_str = beta.to_string();
         let params = vec![("alpha", alpha_str.as_ref()), ("beta", beta_str.as_ref())];
-        self.nlp.get::<TaskStatusResp>(&endpoint, params)?;
+        let _: TaskStatusResp = self.nlp.get(&endpoint, params)?;
         info!("Cluster task {} analysis started", self.task_id());
         Ok(())
     }
@@ -115,7 +113,7 @@ impl<'a> Task for ClusterTask<'a> {
     /// 获取任务状态
     fn status(&self) -> Result<TaskStatus> {
         let endpoint = format!("/cluster/status/{}", self.task_id());
-        let status_resp = self.nlp.get::<TaskStatusResp>(&endpoint, vec![])?;
+        let status_resp: TaskStatusResp = self.nlp.get(&endpoint, vec![])?;
         let status_str = status_resp.status.to_lowercase();
         info!("Cluster task {} status: {}", self.task_id(), status_str);
         let ret = match status_str.as_ref() {
@@ -132,7 +130,7 @@ impl<'a> Task for ClusterTask<'a> {
     /// 获取任务结果
     fn result(&self) -> Result<Vec<TextCluster>> {
         let endpoint = format!("/cluster/result/{}", self.task_id());
-        self.nlp.get::<Vec<TextCluster>>(&endpoint, vec![])
+        self.nlp.get(&endpoint, vec![])
     }
 
     /// 清空服务器端缓存的文本和结果
@@ -179,8 +177,7 @@ impl<'a> Task for CommentsTask<'a> {
             return Ok(false);
         }
         for parts in contents.chunks(100) {
-            let data = serde_json::to_value(parts)?;
-            self.nlp.post::<TaskPushResp>(&endpoint, vec![], &data)?;
+            let _: TaskPushResp = self.nlp.post(&endpoint, vec![], &parts)?;
             info!(
                 "Pushed {} of {} documents for comments clustering",
                 parts.len(),
@@ -197,7 +194,7 @@ impl<'a> Task for CommentsTask<'a> {
         let alpha_str = alpha.to_string();
         let beta_str = beta.to_string();
         let params = vec![("alpha", alpha_str.as_ref()), ("beta", beta_str.as_ref())];
-        self.nlp.get::<TaskStatusResp>(&endpoint, params)?;
+        let _: TaskStatusResp = self.nlp.get(&endpoint, params)?;
         info!("Comments task {} analysis started", self.task_id());
         Ok(())
     }
@@ -205,7 +202,7 @@ impl<'a> Task for CommentsTask<'a> {
     /// 获取任务状态
     fn status(&self) -> Result<TaskStatus> {
         let endpoint = format!("/comments/status/{}", self.task_id());
-        let status_resp = self.nlp.get::<TaskStatusResp>(&endpoint, vec![])?;
+        let status_resp: TaskStatusResp = self.nlp.get(&endpoint, vec![])?;
         let status_str = status_resp.status.to_lowercase();
         info!("Comments task {} status: {}", self.task_id(), status_str);
         let ret = match status_str.as_ref() {
@@ -222,7 +219,7 @@ impl<'a> Task for CommentsTask<'a> {
     /// 获取任务结果
     fn result(&self) -> Result<Vec<CommentsCluster>> {
         let endpoint = format!("/comments/result/{}", self.task_id());
-        self.nlp.get::<Vec<CommentsCluster>>(&endpoint, vec![])
+        self.nlp.get(&endpoint, vec![])
     }
 
     /// 清空服务器端缓存的文本和结果

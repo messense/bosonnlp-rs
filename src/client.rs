@@ -145,18 +145,17 @@ impl BosonNLP {
         Ok(serde_json::from_str::<D>(&body)?)
     }
 
-    #[doc(hidden)]
-    pub fn get<D>(&self, endpoint: &str, params: Vec<(&str, &str)>) -> Result<D>
+    pub(crate) fn get<D>(&self, endpoint: &str, params: Vec<(&str, &str)>) -> Result<D>
     where
         D: DeserializeOwned,
     {
         self.request(Method::Get, endpoint, params, &Value::Null)
     }
 
-    #[doc(hidden)]
-    pub fn post<D>(&self, endpoint: &str, params: Vec<(&str, &str)>, data: &Value) -> Result<D>
+    pub(crate) fn post<D, E>(&self, endpoint: &str, params: Vec<(&str, &str)>, data: &E) -> Result<D>
     where
         D: DeserializeOwned,
+        E: Serialize,
     {
         self.request(Method::Post, endpoint, params, data)
     }
@@ -182,8 +181,8 @@ impl BosonNLP {
     /// ```
     pub fn sentiment<T: AsRef<str>>(&self, contents: &[T], model: &str) -> Result<Vec<(f32, f32)>> {
         let endpoint = format!("/sentiment/analysis?{}", model);
-        let data = serde_json::to_value(contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>())?;
-        self.post::<Vec<(f32, f32)>>(&endpoint, vec![], &data)
+        let data = contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>();
+        self.post(&endpoint, vec![], &data)
     }
 
     /// [时间转换接口](http://docs.bosonnlp.com/time.html)
@@ -209,10 +208,10 @@ impl BosonNLP {
     pub fn convert_time<T: AsRef<str>>(&self, content: T, basetime: Option<T>) -> Result<ConvertedTime> {
         if let Some(base) = basetime {
             let params = vec![("pattern", content.as_ref()), ("basetime", base.as_ref())];
-            return self.post::<ConvertedTime>("/time/analysis", params, &Value::String("".to_owned()));
+            return self.post("/time/analysis", params, &Value::Null);
         } else {
             let params = vec![("pattern", content.as_ref())];
-            return self.post::<ConvertedTime>("/time/analysis", params, &Value::String("".to_owned()));
+            return self.post("/time/analysis", params, &Value::Null);
         };
     }
 
@@ -234,8 +233,8 @@ impl BosonNLP {
     /// }
     /// ```
     pub fn classify<T: AsRef<str>>(&self, contents: &[T]) -> Result<Vec<usize>> {
-        let data = serde_json::to_value(contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>())?;
-        self.post::<Vec<usize>>("/classify/analysis", vec![], &data)
+        let data = contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>();
+        self.post("/classify/analysis", vec![], &data)
     }
 
     /// [语义联想接口](http://docs.bosonnlp.com/suggest.html)
@@ -258,11 +257,10 @@ impl BosonNLP {
     /// }
     /// ```
     pub fn suggest<T: AsRef<str>>(&self, word: T, top_k: usize) -> Result<Vec<(f32, String)>> {
-        let data = serde_json::to_value(word.as_ref())?;
-        self.post::<Vec<(f32, String)>>(
+        self.post(
             "/suggest/analysis",
             vec![("top_k", &top_k.to_string())],
-            &data,
+            &word.as_ref(),
         )
     }
 
@@ -288,14 +286,13 @@ impl BosonNLP {
     /// }
     /// ```
     pub fn keywords<T: AsRef<str>>(&self, text: T, top_k: usize, segmented: bool) -> Result<Vec<(f32, String)>> {
-        let data = serde_json::to_value(text.as_ref())?;
         let top_k_str = top_k.to_string();
         let params = if segmented {
             vec![("top_k", top_k_str.as_ref()), ("segmented", "1")]
         } else {
             vec![("top_k", top_k_str.as_ref())]
         };
-        self.post::<Vec<(f32, String)>>("/keywords/analysis", params, &data)
+        self.post("/keywords/analysis", params, &text.as_ref())
     }
 
     /// [依存文法分析接口](http://docs.bosonnlp.com/depparser.html)
@@ -320,8 +317,8 @@ impl BosonNLP {
     /// }
     /// ```
     pub fn depparser<T: AsRef<str>>(&self, contents: &[T]) -> Result<Vec<Dependency>> {
-        let data = serde_json::to_value(contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>())?;
-        self.post::<Vec<Dependency>>("/depparser/analysis", vec![], &data)
+        let data = contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>();
+        self.post("/depparser/analysis", vec![], &data)
     }
 
     /// [命名实体识别接口](http://docs.bosonnlp.com/ner.html)
@@ -350,7 +347,7 @@ impl BosonNLP {
     /// }
     /// ```
     pub fn ner<T: AsRef<str>>(&self, contents: &[T], sensitivity: usize, segmented: bool) -> Result<Vec<NamedEntity>> {
-        let data = serde_json::to_value(contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>())?;
+        let data = contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>();
         let sensitivity_str = sensitivity.to_string();
         let params = if segmented {
             vec![
@@ -360,7 +357,7 @@ impl BosonNLP {
         } else {
             vec![("sensitivity", sensitivity_str.as_ref())]
         };
-        self.post::<Vec<NamedEntity>>("/ner/analysis", params, &data)
+        self.post("/ner/analysis", params, &data)
     }
 
     /// [分词与词性标注接口](http://docs.bosonnlp.com/tag.html)
@@ -396,7 +393,7 @@ impl BosonNLP {
         t2s: bool,
         special_char_conv: bool,
     ) -> Result<Vec<Tag>> {
-        let data = serde_json::to_value(contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>())?;
+        let data = contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>();
         let t2s_str = if t2s { "1" } else { "0" };
         let special_char_conv_str = if special_char_conv { "1" } else { "0" };
         let space_mode_str = space_mode.to_string();
@@ -407,7 +404,7 @@ impl BosonNLP {
             ("t2s", t2s_str),
             ("special_char_conv", special_char_conv_str),
         ];
-        self.post::<Vec<Tag>>("/tag/analysis", params, &data)
+        self.post("/tag/analysis", params, &data)
     }
 
     /// [新闻摘要接口](http://docs.bosonnlp.com/summary.html)
@@ -443,7 +440,7 @@ impl BosonNLP {
             "percentage": word_limit,
             "not_exceed": not_exceed
         });
-        self.post::<String>("/summary/analysis", vec![], &data)
+        self.post("/summary/analysis", vec![], &data)
     }
 
     /// [文本聚类接口](http://docs.bosonnlp.com/cluster.html)

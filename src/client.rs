@@ -176,7 +176,7 @@ impl BosonNLP {
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
-    ///     let rs = nlp.sentiment(&vec!["这家味道还不错"], "food").unwrap();
+    ///     let rs = nlp.sentiment(&["这家味道还不错"], "food").unwrap();
     ///     assert_eq!(1, rs.len());
     /// }
     /// ```
@@ -229,7 +229,7 @@ impl BosonNLP {
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
-    ///     let rs = nlp.classify(&vec!["俄否决安理会谴责叙军战机空袭阿勒颇平民"]).unwrap();
+    ///     let rs = nlp.classify(&["俄否决安理会谴责叙军战机空袭阿勒颇平民"]).unwrap();
     ///     assert_eq!(vec![5usize], rs);
     /// }
     /// ```
@@ -311,11 +311,11 @@ impl BosonNLP {
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
-    ///     let rs = nlp.depparser(&vec!["今天天气好"]).unwrap();
+    ///     let rs = nlp.depparser(&["今天天气好"]).unwrap();
     ///     assert_eq!(1, rs.len());
     ///     let dep0 = &rs[0];
     ///     assert_eq!(vec![2isize, 2isize, -1isize], dep0.head);
-    ///     let rs = nlp.depparser(&vec!["今天天气好", "美好的世界"]).unwrap();
+    ///     let rs = nlp.depparser(&["今天天气好", "美好的世界"]).unwrap();
     ///     assert_eq!(2, rs.len());
     /// }
     /// ```
@@ -343,9 +343,9 @@ impl BosonNLP {
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
-    ///     let rs = nlp.ner(&vec!["成都商报记者 姚永忠"], 2, false).unwrap();
+    ///     let rs = nlp.ner(&["成都商报记者 姚永忠"], 2, false).unwrap();
     ///     assert_eq!(1, rs.len());
-    ///     let rs = nlp.ner(&vec!["成都商报记者 姚永忠", "微软XP操作系统今日正式退休"], 2, false).unwrap();
+    ///     let rs = nlp.ner(&["成都商报记者 姚永忠", "微软XP操作系统今日正式退休"], 2, false).unwrap();
     ///     assert_eq!(2, rs.len());
     /// }
     /// ```
@@ -384,7 +384,7 @@ impl BosonNLP {
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
-    ///     let rs = nlp.tag(&vec!["成都商报记者 姚永忠"], 0, 3, false, false).unwrap();
+    ///     let rs = nlp.tag(&["成都商报记者 姚永忠"], 0, 3, false, false).unwrap();
     ///     assert_eq!(1, rs.len());
     /// }
     /// ```

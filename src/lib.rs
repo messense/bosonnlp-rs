@@ -21,7 +21,7 @@
 //!
 //! fn main() {
 //!     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
-//!     let rs = nlp.sentiment(&vec!["这家味道还不错".to_owned()], "food").unwrap();
+//!     let rs = nlp.sentiment(&["这家味道还不错"], "food").unwrap();
 //!     assert_eq!(1, rs.len());
 //! }
 //! ```

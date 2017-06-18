@@ -176,13 +176,13 @@ impl BosonNLP {
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
-    ///     let rs = nlp.sentiment(&vec!["这家味道还不错".to_owned()], "food").unwrap();
+    ///     let rs = nlp.sentiment(&vec!["这家味道还不错"], "food").unwrap();
     ///     assert_eq!(1, rs.len());
     /// }
     /// ```
-    pub fn sentiment(&self, contents: &[String], model: &str) -> Result<Vec<(f32, f32)>> {
+    pub fn sentiment<T: AsRef<str>>(&self, contents: &[T], model: &str) -> Result<Vec<(f32, f32)>> {
         let endpoint = format!("/sentiment/analysis?{}", model);
-        let data = serde_json::to_value(contents)?;
+        let data = serde_json::to_value(contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>())?;
         self.post::<Vec<(f32, f32)>>(&endpoint, vec![], &data)
     }
 
@@ -229,12 +229,12 @@ impl BosonNLP {
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
-    ///     let rs = nlp.classify(&vec!["俄否决安理会谴责叙军战机空袭阿勒颇平民".to_owned()]).unwrap();
+    ///     let rs = nlp.classify(&vec!["俄否决安理会谴责叙军战机空袭阿勒颇平民"]).unwrap();
     ///     assert_eq!(vec![5usize], rs);
     /// }
     /// ```
-    pub fn classify(&self, contents: &[String]) -> Result<Vec<usize>> {
-        let data = serde_json::to_value(contents)?;
+    pub fn classify<T: AsRef<str>>(&self, contents: &[T]) -> Result<Vec<usize>> {
+        let data = serde_json::to_value(contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>())?;
         self.post::<Vec<usize>>("/classify/analysis", vec![], &data)
     }
 
@@ -311,16 +311,16 @@ impl BosonNLP {
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
-    ///     let rs = nlp.depparser(&vec!["今天天气好".to_owned()]).unwrap();
+    ///     let rs = nlp.depparser(&vec!["今天天气好"]).unwrap();
     ///     assert_eq!(1, rs.len());
     ///     let dep0 = &rs[0];
     ///     assert_eq!(vec![2isize, 2isize, -1isize], dep0.head);
-    ///     let rs = nlp.depparser(&vec!["今天天气好".to_owned(), "美好的世界".to_owned()]).unwrap();
+    ///     let rs = nlp.depparser(&vec!["今天天气好", "美好的世界"]).unwrap();
     ///     assert_eq!(2, rs.len());
     /// }
     /// ```
-    pub fn depparser(&self, contents: &[String]) -> Result<Vec<Dependency>> {
-        let data = serde_json::to_value(contents)?;
+    pub fn depparser<T: AsRef<str>>(&self, contents: &[T]) -> Result<Vec<Dependency>> {
+        let data = serde_json::to_value(contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>())?;
         self.post::<Vec<Dependency>>("/depparser/analysis", vec![], &data)
     }
 
@@ -343,14 +343,14 @@ impl BosonNLP {
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
-    ///     let rs = nlp.ner(&vec!["成都商报记者 姚永忠".to_owned()], 2, false).unwrap();
+    ///     let rs = nlp.ner(&vec!["成都商报记者 姚永忠"], 2, false).unwrap();
     ///     assert_eq!(1, rs.len());
-    ///     let rs = nlp.ner(&vec!["成都商报记者 姚永忠".to_owned(), "微软XP操作系统今日正式退休".to_owned()], 2, false).unwrap();
+    ///     let rs = nlp.ner(&vec!["成都商报记者 姚永忠", "微软XP操作系统今日正式退休"], 2, false).unwrap();
     ///     assert_eq!(2, rs.len());
     /// }
     /// ```
-    pub fn ner(&self, contents: &[String], sensitivity: usize, segmented: bool) -> Result<Vec<NamedEntity>> {
-        let data = serde_json::to_value(contents)?;
+    pub fn ner<T: AsRef<str>>(&self, contents: &[T], sensitivity: usize, segmented: bool) -> Result<Vec<NamedEntity>> {
+        let data = serde_json::to_value(contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>())?;
         let sensitivity_str = sensitivity.to_string();
         let params = if segmented {
             vec![
@@ -384,19 +384,19 @@ impl BosonNLP {
     ///
     /// fn main() {
     ///     let nlp = BosonNLP::new(env!("BOSON_API_TOKEN"));
-    ///     let rs = nlp.tag(&vec!["成都商报记者 姚永忠".to_owned()], 0, 3, false, false).unwrap();
+    ///     let rs = nlp.tag(&vec!["成都商报记者 姚永忠"], 0, 3, false, false).unwrap();
     ///     assert_eq!(1, rs.len());
     /// }
     /// ```
-    pub fn tag(
+    pub fn tag<T: AsRef<str>>(
         &self,
-        contents: &[String],
+        contents: &[T],
         space_mode: usize,
         oov_level: usize,
         t2s: bool,
         special_char_conv: bool,
     ) -> Result<Vec<Tag>> {
-        let data = serde_json::to_value(contents)?;
+        let data = serde_json::to_value(contents.iter().map(|c| c.as_ref()).collect::<Vec<_>>())?;
         let t2s_str = if t2s { "1" } else { "0" };
         let special_char_conv_str = if special_char_conv { "1" } else { "0" };
         let space_mode_str = space_mode.to_string();

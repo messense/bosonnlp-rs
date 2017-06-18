@@ -51,9 +51,9 @@ extern crate error_chain;
 
 mod rep;
 mod client;
-pub mod task;
+mod task;
 mod errors;
 
 pub use self::client::BosonNLP;
-pub use self::errors::{ErrorKind, Result};
+pub use self::errors::*;
 pub use self::rep::*;

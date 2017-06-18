@@ -70,7 +70,7 @@ pub struct CommentsCluster {
 
 /// 聚类任务状态
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub enum TaskStatus {
+pub(crate) enum TaskStatus {
     /// 成功接收到分析请求
     Received,
     /// 数据分析正在进行中
@@ -83,14 +83,14 @@ pub enum TaskStatus {
 
 /// 聚类任务提交响应
 #[derive(Debug, Deserialize, Clone)]
-pub struct TaskPushResp {
+pub(crate) struct TaskPushResp {
     pub task_id: String,
     pub count: usize,
 }
 
 /// 聚类任务状态响应
 #[derive(Debug, Deserialize, Clone)]
-pub struct TaskStatusResp {
+pub(crate) struct TaskStatusResp {
     pub _id: String,
     pub status: String,
     pub count: usize,
@@ -98,7 +98,7 @@ pub struct TaskStatusResp {
 
 /// 聚类任务单个输入内容
 #[derive(Debug, Clone, Serialize, PartialEq, Eq, Hash)]
-pub struct ClusterContent {
+pub(crate) struct ClusterContent {
     /// 文档编号
     pub _id: String,
     /// 文档内容

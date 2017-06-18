@@ -8,13 +8,13 @@ use rep::{TextCluster, CommentsCluster, TaskStatus, ClusterContent, TaskPushResp
 use errors::*;
 
 /// 聚类任务属性
-pub trait TaskProperty {
+pub(crate) trait TaskProperty {
     /// 任务 ID
     fn task_id(&self) -> String;
 }
 
 /// 聚类任务
-pub trait Task: TaskProperty {
+pub(crate) trait Task: TaskProperty {
     type Output;
 
     /// 批量上传需要处理的文本序列
@@ -57,7 +57,7 @@ pub trait Task: TaskProperty {
 }
 
 /// 文本聚类任务
-pub struct ClusterTask<'a> {
+pub(crate) struct ClusterTask<'a> {
     task_id: String,
     contents: Vec<ClusterContent>,
     nlp: &'a BosonNLP,
@@ -147,7 +147,7 @@ impl<'a> Task for ClusterTask<'a> {
 }
 
 /// 典型意见任务
-pub struct CommentsTask<'a> {
+pub(crate) struct CommentsTask<'a> {
     pub task_id: String,
     contents: Vec<ClusterContent>,
     nlp: &'a BosonNLP,

@@ -31,7 +31,6 @@
 #![cfg_attr(feature="clippy", feature(plugin))]
 #![cfg_attr(feature="clippy", plugin(clippy))]
 #![cfg_attr(feature="clippy", warn(cyclomatic_complexity))]
-#![cfg_attr(feature="clippy", allow(used_underscore_binding))]
 
 #[macro_use]
 extern crate log;

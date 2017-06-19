@@ -53,9 +53,7 @@ impl BosonNLP {
     pub fn new<T: Into<String>>(token: T) -> BosonNLP {
         BosonNLP {
             token: token.into(),
-            compress: true,
-            bosonnlp_url: DEFAULT_BOSONNLP_URL.to_owned(),
-            client: Client::new().expect("Error construct HTTP client"),
+            ..Default::default()
         }
     }
 
@@ -65,7 +63,7 @@ impl BosonNLP {
             token: token.into(),
             compress: compress,
             bosonnlp_url: bosonnlp_url.into(),
-            client: Client::new().expect("Error construct HTTP client"),
+            ..Default::default()
         }
     }
 
@@ -73,9 +71,8 @@ impl BosonNLP {
     pub fn with_client<T: Into<String>>(token: T, client: Client) -> BosonNLP {
         BosonNLP {
             token: token.into(),
-            compress: true,
-            bosonnlp_url: DEFAULT_BOSONNLP_URL.to_owned(),
             client: client,
+            ..Default::default()
         }
     }
 

@@ -92,10 +92,7 @@ impl BosonNLP {
             .header(XToken(self.token.clone()));
         let mut res = if method == Method::Post {
             let req = req.header(ContentType::json());
-            let body = match serde_json::to_string(data) {
-                Ok(d) => d,
-                Err(..) => "".to_owned(),
-            };
+            let body = serde_json::to_string(data)?;
             if self.compress && body.len() > 10240 {
                 let mut encoder = GzEncoder::new(Vec::new(), Compression::Default);
                 encoder.write_all(body.as_bytes())?;

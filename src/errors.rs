@@ -1,5 +1,4 @@
-use reqwest;
-use hyper::status::StatusCode;
+use reqwest::{self, StatusCode};
 use serde_json;
 
 error_chain! {

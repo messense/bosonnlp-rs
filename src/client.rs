@@ -8,10 +8,8 @@ use url::Url;
 use uuid::Uuid;
 use flate2::Compression;
 use flate2::write::GzEncoder;
-use reqwest::Client;
-use reqwest::Method;
+use reqwest::{mime, Client, Method};
 use reqwest::header::{UserAgent, Accept, ContentLength, ContentType, ContentEncoding, Encoding, qitem};
-use reqwest::mime::{Mime, TopLevel, SubLevel, Attr, Value as MimeValue};
 
 use errors::*;
 use rep::{Dependency, NamedEntity, Tag, TextCluster, CommentsCluster, ConvertedTime, ClusterContent};
@@ -86,17 +84,12 @@ impl BosonNLP {
         url.query_pairs_mut().extend_pairs(params.into_iter());
         let body;
         let compressed;
-        let req = self.client
-            .request(method.clone(), url)
-            .header(UserAgent(
+        let mut req = self.client.request(method.clone(), url)?;
+        let req = req.header(UserAgent::new(
                 format!("bosonnlp-rs/{}", env!("CARGO_PKG_VERSION")),
             ))
             .header(Accept(vec![
-                qitem(Mime(
-                    TopLevel::Application,
-                    SubLevel::Json,
-                    vec![(Attr::Charset, MimeValue::Utf8)],
-                )),
+                qitem(mime::APPLICATION_JSON),
             ]))
             .header(XToken(self.token.clone()));
         let mut res = if method == Method::Post {
@@ -110,7 +103,7 @@ impl BosonNLP {
                 encoder.write_all(body.as_bytes())?;
                 compressed = encoder.finish()?;
                 let req = req.header(ContentEncoding(vec![Encoding::Gzip]));
-                req.body(&compressed[..]).send()?
+                req.body(compressed).send()?
             } else {
                 req.body(body).send()?
             }
@@ -134,7 +127,7 @@ impl BosonNLP {
             };
             return Err(
                 (ErrorKind::Api {
-                     code: *status,
+                     code: status,
                      reason: message,
                  }).into(),
             );

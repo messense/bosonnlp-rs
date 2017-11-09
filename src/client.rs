@@ -41,7 +41,7 @@ impl Default for BosonNLP {
             token: "".to_string(),
             compress: true,
             bosonnlp_url: DEFAULT_BOSONNLP_URL.to_owned(),
-            client: Client::new().expect("Error construct HTTP client"),
+            client: Client::new(),
         }
     }
 }
@@ -82,7 +82,7 @@ impl BosonNLP {
         let url_string = format!("{}{}", self.bosonnlp_url, endpoint);
         let mut url = Url::parse(&url_string).unwrap();
         url.query_pairs_mut().extend_pairs(params.into_iter());
-        let mut req = self.client.request(method.clone(), url)?;
+        let mut req = self.client.request(method.clone(), url);
         let req = req.header(UserAgent::new(
                 format!("bosonnlp-rs/{}", env!("CARGO_PKG_VERSION")),
             ))

@@ -8,7 +8,7 @@ license = "MIT"
 name = "bosonnlp"
 readme = "README.md"
 repository = "https://github.com/messense/bosonnlp-rs"
-version = "0.8.0"
+version = "0.8.1"
 
 [badges]
 travis-ci = { repository = "messense/bosonnlp-rs" }

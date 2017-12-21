@@ -94,7 +94,7 @@ impl BosonNLP {
             let req = req.header(ContentType::json());
             let body = serde_json::to_string(data)?;
             if self.compress && body.len() > 10240 {
-                let mut encoder = GzEncoder::new(Vec::new(), Compression::Default);
+                let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
                 encoder.write_all(body.as_bytes())?;
                 let compressed = encoder.finish()?;
                 let req = req.header(ContentEncoding(vec![Encoding::Gzip]));

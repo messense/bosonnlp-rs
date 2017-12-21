@@ -15,7 +15,7 @@ travis-ci = { repository = "messense/bosonnlp-rs" }
 
 [dependencies]
 error-chain = "0.11"
-flate2 = "0.2"
+flate2 = "1.0"
 hyper = "0.11"
 log = "0.3"
 reqwest = "0.8"

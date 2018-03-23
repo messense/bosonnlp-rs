@@ -121,10 +121,10 @@ impl BosonNLP {
                 None => body,
             };
             return Err(
-                (ErrorKind::Api {
-                     code: status,
-                     reason: message,
-                 }).into(),
+                Error::Api {
+                    code: status,
+                    reason: message
+                }
             );
         }
         Ok(serde_json::from_str::<D>(&body)?)

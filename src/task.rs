@@ -44,7 +44,7 @@ pub(crate) trait Task: TaskProperty {
             elapsed += seconds_to_sleep;
             if let Some(_timeout) = timeout {
                 if elapsed >= Duration::from_secs(_timeout) {
-                    return Err(ErrorKind::Timeout(self.task_id()).into());
+                    return Err(Error::Timeout(self.task_id()));
                 }
             }
             i += 1usize;
@@ -121,7 +121,7 @@ impl<'a> Task for ClusterTask<'a> {
             "running" => TaskStatus::Running,
             "done" => TaskStatus::Done,
             "error" => TaskStatus::Error,
-            "not found" => return Err(ErrorKind::TaskNotFound(self.task_id()).into()),
+            "not found" => return Err(Error::TaskNotFound(self.task_id())),
             _ => unreachable!(),
         };
         Ok(ret)
@@ -210,7 +210,7 @@ impl<'a> Task for CommentsTask<'a> {
             "running" => TaskStatus::Running,
             "done" => TaskStatus::Done,
             "error" => TaskStatus::Error,
-            "not found" => return Err(ErrorKind::TaskNotFound(self.task_id()).into()),
+            "not found" => return Err(Error::TaskNotFound(self.task_id())),
             _ => unreachable!(),
         };
         Ok(ret)

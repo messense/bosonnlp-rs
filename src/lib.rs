@@ -7,7 +7,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! bosonnlp = "0.9"
+//! bosonnlp = "0.10"
 //! ```
 //!
 //! ## 使用教程

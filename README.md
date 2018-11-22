@@ -13,7 +13,7 @@ Add it to your ``Cargo.toml``:
 
 ```toml
 [dependencies]
-bosonnlp = "0.9"
+bosonnlp = "0.10"
 ```
 
 Add ``extern crate bosonnlp`` to your crate root and your're good to go!

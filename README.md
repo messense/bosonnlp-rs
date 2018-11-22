@@ -32,20 +32,6 @@ First you need to export a shell variable called ``BOSON_API_TOKEN`` and then ru
 $ cargo test
 ```
 
-## [Documentation](http://messense.github.io/bosonnlp-rs/bosonnlp/index.html)
-
-For BosonNLP REST API documentation, please visit http://docs.bosonnlp.com/index.html
-
-To generate crate documentation locally, run:
-
-```bash
-$ cargo doc
-```
-
-Then you will be able to open the documentation under ``target/doc/bosonnlp`` directory.
-
-Wait, of course you can read it [online](http://messense.github.io/bosonnlp-rs/bosonnlp/index.html).
-
 ## License
 
 This work is released under the MIT license. A copy of the license is provided in the [LICENSE](./LICENSE) file.

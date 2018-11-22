@@ -28,9 +28,6 @@
 //!
 //! 可以在 [`BosonNLP` 文档网站](http://docs.bosonnlp.com) 阅读详细的 `BosonNLP` REST API 文档。
 #![recursion_limit = "1024"]
-#![cfg_attr(feature="clippy", feature(plugin))]
-#![cfg_attr(feature="clippy", plugin(clippy))]
-#![cfg_attr(feature="clippy", warn(cyclomatic_complexity))]
 
 #[macro_use]
 extern crate log;

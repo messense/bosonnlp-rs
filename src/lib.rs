@@ -33,8 +33,6 @@
 extern crate log;
 extern crate url;
 extern crate uuid;
-#[macro_use]
-extern crate hyper;
 extern crate reqwest;
 extern crate flate2;
 extern crate serde;

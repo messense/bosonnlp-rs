@@ -108,7 +108,7 @@ pub(crate) struct ClusterContent {
 impl From<String> for ClusterContent {
     fn from(content: String) -> ClusterContent {
         ClusterContent {
-            _id: Uuid::new_v4().simple().to_string(),
+            _id: Uuid::new_v4().to_simple_ref().to_string(),
             text: content,
         }
     }

@@ -8,8 +8,8 @@ use url::Url;
 use uuid::Uuid;
 use flate2::Compression;
 use flate2::write::GzEncoder;
-use reqwest::{mime, Client, Method};
-use reqwest::header::{UserAgent, Accept, ContentLength, ContentType, ContentEncoding, Encoding, qitem};
+use reqwest::{Client, Method};
+use reqwest::header::{CONTENT_LENGTH, USER_AGENT, ACCEPT, CONTENT_ENCODING, CONTENT_TYPE};
 
 use errors::*;
 use rep::{Dependency, NamedEntity, Tag, TextCluster, CommentsCluster, ConvertedTime, ClusterContent};
@@ -17,10 +17,7 @@ use task::{ClusterTask, CommentsTask, Task};
 
 
 /// 默认的 `BosonNLP` API 服务器地址
-const DEFAULT_BOSONNLP_URL: &'static str = "http://api.bosonnlp.com";
-
-/// `BosonNLP` API 鉴权 HTTP Header
-header! { (XToken, "X-Token") => [String] }
+const DEFAULT_BOSONNLP_URL: &'static str = "https://api.bosonnlp.com";
 
 /// [`BosonNLP`](http://bosonnlp.com) REST API 访问的封装
 #[derive(Debug, Clone)]
@@ -83,21 +80,20 @@ impl BosonNLP {
         let mut url = Url::parse(&url_string).unwrap();
         url.query_pairs_mut().extend_pairs(params.into_iter());
         let mut req = self.client.request(method.clone(), url);
-        let req = req.header(UserAgent::new(
+        req = req.header(
+                USER_AGENT,
                 format!("bosonnlp-rs/{}", env!("CARGO_PKG_VERSION")),
-            ))
-            .header(Accept(vec![
-                qitem(mime::APPLICATION_JSON),
-            ]))
-            .header(XToken(self.token.clone()));
-        let mut res = if method == Method::Post {
-            let req = req.header(ContentType::json());
+            )
+            .header(ACCEPT, "application/json")
+            .header("X-Token", self.token.clone());
+        let mut res = if method == Method::POST {
+            let req = req.header(CONTENT_TYPE, "application/json");
             let body = serde_json::to_string(data)?;
             if self.compress && body.len() > 10240 {
                 let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
                 encoder.write_all(body.as_bytes())?;
                 let compressed = encoder.finish()?;
-                let req = req.header(ContentEncoding(vec![Encoding::Gzip]));
+                let req = req.header(CONTENT_ENCODING, "gzip");
                 req.body(compressed).send()?
             } else {
                 req.body(body).send()?
@@ -105,10 +101,11 @@ impl BosonNLP {
         } else {
             req.send()?
         };
-        let mut body = match res.headers().get::<ContentLength>() {
-            Some(&ContentLength(len)) => String::with_capacity(len as usize),
-            _ => String::new(),
-        };
+        let content_len = res.headers().get(CONTENT_LENGTH)
+            .and_then(|ct_len| ct_len.to_str().ok())
+            .and_then(|ct_len| ct_len.parse().ok())
+            .unwrap_or(0);
+        let mut body = String::with_capacity(content_len);
         res.read_to_string(&mut body)?;
         let status = res.status();
         if !status.is_success() {
@@ -134,7 +131,7 @@ impl BosonNLP {
     where
         D: DeserializeOwned,
     {
-        self.request(Method::Get, endpoint, params, &Value::Null)
+        self.request(Method::GET, endpoint, params, &Value::Null)
     }
 
     pub(crate) fn post<D, E>(&self, endpoint: &str, params: Vec<(&str, &str)>, data: &E) -> Result<D>
@@ -142,7 +139,7 @@ impl BosonNLP {
         D: DeserializeOwned,
         E: Serialize,
     {
-        self.request(Method::Post, endpoint, params, data)
+        self.request(Method::POST, endpoint, params, data)
     }
 
     /// [情感分析接口](http://docs.bosonnlp.com/sentiment.html)
@@ -471,7 +468,7 @@ impl BosonNLP {
         let mut task = match task_id {
             Some(_id) => ClusterTask::new(self, _id),
             None => {
-                let _id = Uuid::new_v4().simple().to_string();
+                let _id = Uuid::new_v4().to_simple_ref().to_string();
                 ClusterTask::new(self, _id)
             }
         };
@@ -536,7 +533,7 @@ impl BosonNLP {
         let mut task = match task_id {
             Some(_id) => CommentsTask::new(self, _id),
             None => {
-                let _id = Uuid::new_v4().simple().to_string();
+                let _id = Uuid::new_v4().to_simple_ref().to_string();
                 CommentsTask::new(self, _id)
             }
         };

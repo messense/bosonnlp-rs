@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Error",""]],"struct":[["BosonNLP","`BosonNLP` REST API 访问的封装"],["CommentsCluster","典型意见"],["ConvertedTime","时间转换结果"],["Dependency","依存文法"],["NamedEntity","命名实体"],["Tag","词性标注"],["TextCluster","文本聚类"]],"type":[["Result",""]]});

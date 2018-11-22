@@ -1,7 +1,6 @@
 [package]
 authors = ["messense <messense@icloud.com>"]
 description = "BosonNLP SDK for Rust"
-documentation = "https://messense.github.io/bosonnlp-rs"
 homepage = "https://github.com/messense/bosonnlp-rs"
 keywords = ["nlp", "bosonnlp", "tag", "ner", "sentiment"]
 license = "MIT"

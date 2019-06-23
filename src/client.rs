@@ -9,7 +9,7 @@ use uuid::Uuid;
 use flate2::Compression;
 use flate2::write::GzEncoder;
 use reqwest::{Client, Method};
-use reqwest::header::{CONTENT_LENGTH, USER_AGENT, ACCEPT, CONTENT_ENCODING, CONTENT_TYPE};
+use reqwest::header::{USER_AGENT, ACCEPT, CONTENT_ENCODING, CONTENT_TYPE};
 
 use errors::*;
 use rep::{Dependency, NamedEntity, Tag, TextCluster, CommentsCluster, ConvertedTime, ClusterContent};
@@ -88,10 +88,10 @@ impl BosonNLP {
             .header("X-Token", self.token.clone());
         let mut res = if method == Method::POST {
             let req = req.header(CONTENT_TYPE, "application/json");
-            let body = serde_json::to_string(data)?;
+            let body = serde_json::to_vec(data)?;
             if self.compress && body.len() > 10240 {
                 let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
-                encoder.write_all(body.as_bytes())?;
+                encoder.write_all(&body)?;
                 let compressed = encoder.finish()?;
                 let req = req.header(CONTENT_ENCODING, "gzip");
                 req.body(compressed).send()?
@@ -101,10 +101,7 @@ impl BosonNLP {
         } else {
             req.send()?
         };
-        let content_len = res.headers().get(CONTENT_LENGTH)
-            .and_then(|ct_len| ct_len.to_str().ok())
-            .and_then(|ct_len| ct_len.parse().ok())
-            .unwrap_or(0);
+        let content_len = res.content_length().unwrap_or(0) as usize;
         let mut body = String::with_capacity(content_len);
         res.read_to_string(&mut body)?;
         let status = res.status();

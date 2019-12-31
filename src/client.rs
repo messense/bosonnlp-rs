@@ -8,7 +8,8 @@ use url::Url;
 use uuid::Uuid;
 use flate2::Compression;
 use flate2::write::GzEncoder;
-use reqwest::{Client, Method};
+use reqwest::Method;
+use reqwest::blocking::Client;
 use reqwest::header::{USER_AGENT, ACCEPT, CONTENT_ENCODING, CONTENT_TYPE};
 
 use errors::*;
